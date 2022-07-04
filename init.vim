@@ -15,3 +15,9 @@ runtime ./conf/confPluggins/prettier.vim
 
 " Colorizer
 runtime ./conf/confPluggins/colorizer.lua
+
+" barbar
+runtime ./conf/confPluggins/barbar.vim
+
+" indent_blankline
+runtime ./conf/confPluggins/indent-blankline.lua
