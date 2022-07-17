@@ -12,7 +12,7 @@ Plug 'scrooloose/nerdtree'  "Arbol de archivos
 Plug 'christoomey/vim-tmux-navigator' " Moverse entre pantallas vim o nvim
 Plug 'scrooloose/nerdcommenter' " Sirve para hacer comentarios
 Plug 'jiangmiao/auto-pairs' "Cierra en auomatico llaves, parentesis, comillas, etc.
-Plug 'turbio/bracey.vim' " Live server para vim
+Plug 'ryanoasis/vim-devicons' " Poner iconos de tipos de archivos en nerdtree
 
 " Syntax
 Plug 'sheerun/vim-polyglot' " Resalta texto de cada tipo de lenguaje
@@ -26,7 +26,6 @@ Plug 'lukas-reineke/indent-blankline.nvim'
 Plug 'maximbaz/lightline-ale' 
 Plug 'itchyny/lightline.vim'
 
-
 " Menu navegacion
 Plug 'kyazdani42/nvim-web-devicons'
 Plug 'romgrk/barbar.nvim'
@@ -34,8 +33,8 @@ Plug 'romgrk/barbar.nvim'
 " autocomplete
 Plug 'neoclide/coc.nvim', {'branch': 'release'} " Autocompleta lenguajes
 
-
 " Multi - nos permite seleccionar multiples veces :help visual-multi
 Plug 'mg979/vim-visual-multi', {'branch': 'master'}
+
 
 call plug#end()

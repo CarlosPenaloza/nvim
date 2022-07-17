@@ -1,7 +1,7 @@
 " Canal: HolaMundo - udemy
 set number
 set relativenumber
-set mouse=a
+set mouse=nv
 set numberwidth=1
 syntax enable
 set showcmd
@@ -20,3 +20,4 @@ set smartindent
 
 " Otros
 set termguicolors
+set foldmethod=manual " za(cierra) and space(abrev)
