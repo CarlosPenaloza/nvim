@@ -17,7 +17,9 @@ set nobackup
 set nowrap
 set noswapfile
 set smartindent
+set splitbelow
+set splitright
 
 " Otros
 set termguicolors
-set foldmethod=manual " za(cierra) and space(abrev)
+set foldmethod=manual " zf(cierra), za(alterna) and space(abrev)

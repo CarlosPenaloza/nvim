@@ -5,7 +5,7 @@ Plug 'pacokwon/onedarkhc.vim'
 Plug 'arcticicestudio/nord-vim'
 Plug 'dracula/vim', { 'as': 'dracula' }
 Plug 'morhetz/gruvbox'
- 
+
 "IDE
 Plug 'easymotion/vim-easymotion' " Necesario para la creacion de atajos
 Plug 'scrooloose/nerdtree'  "Arbol de archivos
@@ -22,19 +22,12 @@ Plug 'https://github.com/adelarsq/vim-matchit' " Colorer parentesis, llaves, etc
 Plug 'yaocccc/vim-surround' " Poner parentesis, llaves, seleccionados
 Plug 'lukas-reineke/indent-blankline.nvim'
 
-" status bar - Ayuda a que se acomode la barra que se encuentra abajo de vim, que nos dice el modo en el que estamos, lenguaje, etc.
-Plug 'maximbaz/lightline-ale' 
-Plug 'itchyny/lightline.vim'
-
-" Menu navegacion
-Plug 'kyazdani42/nvim-web-devicons'
-Plug 'romgrk/barbar.nvim'
+" status bar - Ayuda a que se acomode la barra que se encuentra abajo y arriba de vim, que nos dice el modo en el que estamos, lenguaje, etc.
+Plug 'vim-airline/vim-airline'
+Plug 'vim-airline/vim-airline-themes'
 
 " autocomplete
 Plug 'neoclide/coc.nvim', {'branch': 'release'} " Autocompleta lenguajes
-
-" Multi - nos permite seleccionar multiples veces :help visual-multi
-Plug 'mg979/vim-visual-multi', {'branch': 'master'}
 
 
 call plug#end()
