@@ -14,8 +14,11 @@ let g:coc_global_extensions = [
   \ 'coc-python',
   \ 'coc-sh',
   \ 'coc-stylelint',
-  "\ 'coc-snippets',
-  \ 'coc-sql'
+  \ 'coc-sql',
+  \ 'coc-vetur' ,
+  \ 'coc-styled-components' ,
+  \ 'coc-lit-html' ,
+  \ 'coc-tslint-plugin'
 \ ]
 
 " Having longer updatetime (default is 4000 ms = 4 s) leads to noticeable

@@ -5,14 +5,16 @@ Plug 'pacokwon/onedarkhc.vim'
 Plug 'arcticicestudio/nord-vim'
 Plug 'dracula/vim', { 'as': 'dracula' }
 Plug 'morhetz/gruvbox'
+Plug 'sonph/onehalf', { 'rtp': 'vim' }
+Plug 'sainnhe/sonokai'
 
 "IDE
 Plug 'easymotion/vim-easymotion' " Necesario para la creacion de atajos
-Plug 'scrooloose/nerdtree'  "Arbol de archivos
+Plug 'preservim/nerdtree'
+"Plug 'scrooloose/nerdtree'  "Arbol de archivos
 Plug 'tiagofumo/vim-nerdtree-syntax-highlight' " acompaña a nerdtree dando color 
-Plug 'Xuyuanp/nerdtree-git-plugin' " Para poder ver los cambios hechos en el archivo
 Plug 'christoomey/vim-tmux-navigator' " Moverse entre pantallas vim o nvim
-Plug 'airblade/vim-gitgutter' " Dice que archivo tiene cambios desde nerdtree
+Plug 'airblade/vim-gitgutter' " Muestra  que lineas han sufrido cambio
 Plug 'scrooloose/nerdcommenter' " Sirve para hacer comentarios
 Plug 'jiangmiao/auto-pairs' "Cierra en auomatico llaves, parentesis, comillas, etc.
 Plug 'ryanoasis/vim-devicons' " Poner iconos de tipos de archivos en nerdtree
@@ -32,5 +34,6 @@ Plug 'vim-airline/vim-airline-themes'
 " autocomplete
 Plug 'neoclide/coc.nvim', {'branch': 'release'} " Autocompleta lenguajes
 
+" Lenguajes
 
 call plug#end()
