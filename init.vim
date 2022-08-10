@@ -21,3 +21,6 @@ runtime ./conf/confPluggins/airline.vim
 
 " indent_blankline
 runtime ./conf/confPluggins/indent-blankline.lua
+
+" nerdtree-git
+runtime ./conf/confPluggins/nerdtree-git.vim

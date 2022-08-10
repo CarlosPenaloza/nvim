@@ -9,7 +9,10 @@ Plug 'morhetz/gruvbox'
 "IDE
 Plug 'easymotion/vim-easymotion' " Necesario para la creacion de atajos
 Plug 'scrooloose/nerdtree'  "Arbol de archivos
+Plug 'tiagofumo/vim-nerdtree-syntax-highlight' " acompaña a nerdtree dando color 
+Plug 'Xuyuanp/nerdtree-git-plugin' " Para poder ver los cambios hechos en el archivo
 Plug 'christoomey/vim-tmux-navigator' " Moverse entre pantallas vim o nvim
+Plug 'airblade/vim-gitgutter' " Dice que archivo tiene cambios desde nerdtree
 Plug 'scrooloose/nerdcommenter' " Sirve para hacer comentarios
 Plug 'jiangmiao/auto-pairs' "Cierra en auomatico llaves, parentesis, comillas, etc.
 Plug 'ryanoasis/vim-devicons' " Poner iconos de tipos de archivos en nerdtree
@@ -20,7 +23,7 @@ Plug 'prettier/vim-prettier', { 'do': 'yarn install --frozen-lockfile --producti
 Plug 'norcalli/nvim-colorizer.lua' " Da color a los codigos de colores hex, rga, rgba, etc en css.
 Plug 'https://github.com/adelarsq/vim-matchit' " Colorer parentesis, llaves, etc.
 Plug 'yaocccc/vim-surround' " Poner parentesis, llaves, seleccionados
-Plug 'lukas-reineke/indent-blankline.nvim'
+Plug 'lukas-reineke/indent-blankline.nvim' " Resalta saltos de linea, identaciones, espacios, etc.
 
 " status bar - Ayuda a que se acomode la barra que se encuentra abajo y arriba de vim, que nos dice el modo en el que estamos, lenguaje, etc.
 Plug 'vim-airline/vim-airline'
