@@ -13,6 +13,7 @@ let g:coc_global_extensions = [
   \ 'coc-markdownlint',
   \ 'coc-python',
   \ 'coc-sh',
+  \ 'coc-snippets',
   \ 'coc-stylelint',
   \ 'coc-sql',
   \ 'coc-vetur' ,

@@ -12,17 +12,11 @@ nmap <Leader>s <Plug>(easymotion-s2)
 
 "NerdTree
 let NERDTreeQuitOnOpen=1
-nmap <Leader>nt :NERDTreeFind<CR>
-
-" FNZ
-nmap <Leader>p :Files<CR>
-nmap <Leader>ag :Ag<CR>
+nmap <Leader>nt :NERDTreeToggle<CR>
 
 " Comentarios
-" espacio c espacio
-
-" vim-surround
-" espacio S simboloEnElQueSeEncerrara
+" espacio c espacio comenta la linea actual
+" espacio c s comenta como bloque
 
 " prettier-vim
 nmap <Leader>pt <Plug>(Prettier)
