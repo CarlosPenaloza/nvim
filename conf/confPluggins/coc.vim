@@ -1,3 +1,4 @@
+let g:coc_config_file="./coc-settings.json"
 let g:coc_global_extensions = [
   \ 'coc-tsserver',
   \ 'coc-css',

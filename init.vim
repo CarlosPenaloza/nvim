@@ -33,5 +33,22 @@ runtime ./conf/confPluggins/ultisnips.vim
 " treesitter
 runtime ./conf/confPluggins/treesitter.lua
 
-" FZF
+" Lualine
+runtime ./conf/confPluggins/lualine.lua
+
+" Telescope
+runtime ./conf/confPluggins/telescope.vim
+
+" Telescope
+runtime ./conf/confPluggins/bufferline.lua
+
+" Floaterm
+runtime ./conf/confPluggins/floaterm.vim
+
+" fzf
 runtime ./conf/confPluggins/fzf.vim
+
+" gitsigns
+runtime ./conf/confPluggins/gitsigns.lua
+
+

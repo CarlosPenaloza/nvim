@@ -39,7 +39,3 @@ nmap <leader>sp :sp<CR>
 "Salto de linea sin cambiar a modo insertar
 nmap <Leader>o o<ESC>
 nmap <Leader>O O<ESC>
-
-" Terminal
-nmap <Leader>t :split <CR>:ter<CR>:resize 10<CR>
-vmap <Leader>t :split <CR>:ter<CR>:resize 10<CR>
