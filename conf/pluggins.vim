@@ -11,7 +11,7 @@ Plug 'sainnhe/sonokai'
 "IDE
 Plug 'easymotion/vim-easymotion' " Necesario para la creacion de atajos
 Plug 'preservim/nerdtree' " Arbol de archivos
-Plug 'tiagofumo/vim-nerdtree-syntax-highlight' " acompaña a nerdtree dando color 
+"Plug 'tiagofumo/vim-nerdtree-syntax-highlight' " acompaña a nerdtree dando color - NO ESTA FUNCIONANDO EN LA ACTUAL VERSION DE NVIM
 Plug 'Xuyuanp/nerdtree-git-plugin' " Git en nerdtree
 Plug 'christoomey/vim-tmux-navigator' " Moverse entre pantallas vim o nvim
 Plug 'lewis6991/gitsigns.nvim' " Muestra lineas que han sufrido cambio desde git
@@ -48,9 +48,13 @@ Plug 'akinsho/bufferline.nvim', { 'tag': 'v2.*' }
 " Pantalla flotante
 Plug 'voldikss/vim-floaterm'
 
+" Telescope
+Plug 'nvim-lua/plenary.nvim'
+Plug 'nvim-telescope/telescope.nvim', { 'tag': '0.1.0' }
+
 " Fzf
-Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
-Plug 'junegunn/fzf.vim'
-Plug 'airblade/vim-rooter'
+"Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
+"Plug 'junegunn/fzf.vim'
+"Plug 'airblade/vim-rooter'
 
 call plug#end()

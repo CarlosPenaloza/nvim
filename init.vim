@@ -1,54 +1,55 @@
-set runtimepath^=~/.vim/after
+"set runtimepath^=~/.vim/after
 let g:python3_host_prog="/usr/bin/python3"
 "let g:loaded_python3_provider = 0 " Desactivar suporte de python
-let &packpath=&runtimepath
+"let &packpath=&runtimepath
 
 " Partes vim
-runtime ./conf/generales.vim
-runtime ./conf/pluggins.vim
-runtime ./conf/atajos.vim
-runtime ./conf/confEspeciales.vim
+source $HOME/.config/nvim/conf/generales.vim
+source $HOME/.config/nvim/conf/pluggins.vim
+source $HOME/.config/nvim/conf/atajos.vim
+source $HOME/.config/nvim/conf/confEspeciales.vim
 
-"Tmux
-runtime ./conf/confPluggins/tmux-navigator.vim
+" Tmux
+source $HOME/.config/nvim/conf/confPluggins/tmux-navigator.vim
+
+" NERDTree
+source $HOME/.config/nvim/conf/confPluggins/nerdtree.vim
 
 " Coc
-runtime ./conf/confPluggins/coc.vim
+source $HOME/.config/nvim/conf/confPluggins/coc.vim
 
 " prettier
-runtime ./conf/confPluggins/prettier.vim
+source $HOME/.config/nvim/conf/confPluggins/prettier.vim
 
 " Colorizer
-runtime ./conf/confPluggins/colorizer.lua
+source $HOME/.config/nvim/conf/confPluggins/colorizer.lua
 
 " airline
-runtime ./conf/confPluggins/airline.vim
+source $HOME/.config/nvim/conf/confPluggins/airline.vim
 
 " indent_blankline
-runtime ./conf/confPluggins/indent-blankline.lua
+source $HOME/.config/nvim/conf/confPluggins/indent-blankline.lua
 
 " ultisnips
-runtime ./conf/confPluggins/ultisnips.vim
+source $HOME/.config/nvim/conf/confPluggins/ultisnips.vim
 
 " treesitter
-runtime ./conf/confPluggins/treesitter.lua
+source $HOME/.config/nvim/conf/confPluggins/treesitter.lua
 
 " Lualine
-runtime ./conf/confPluggins/lualine.lua
+source $HOME/.config/nvim/conf/confPluggins/lualine.lua
 
 " Telescope
-runtime ./conf/confPluggins/telescope.vim
+source $HOME/.config/nvim/conf/confPluggins/telescope.vim
 
-" Telescope
-runtime ./conf/confPluggins/bufferline.lua
+" Bufferline
+source $HOME/.config/nvim/conf/confPluggins/bufferline.lua
 
 " Floaterm
-runtime ./conf/confPluggins/floaterm.vim
+source $HOME/.config/nvim/conf/confPluggins/floaterm.vim
 
 " fzf
-runtime ./conf/confPluggins/fzf.vim
+"source $HOME/.config/nvim/conf/confPluggins/fzf.vim
 
 " gitsigns
-runtime ./conf/confPluggins/gitsigns.lua
-
-
+source $HOME/.config/nvim/conf/confPluggins/gitsigns.lua

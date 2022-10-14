@@ -1,6 +1,0 @@
-{
-  "dependencies": {
-    "@mryhryki/markdown-preview": "^0.3.11",
-    "servor": "^4.0.2"
-  }
-}

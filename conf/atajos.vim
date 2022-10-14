@@ -10,10 +10,6 @@ nmap <Leader>Q :q<CR>
 nmap <Leader>W :wq!<CR>
 nmap <Leader>s <Plug>(easymotion-s2)
 
-"NerdTree
-let NERDTreeQuitOnOpen=1
-nmap <Leader>nt :NERDTreeToggle<CR>
-
 " Comentarios
 " espacio c espacio comenta la linea actual
 " espacio c s comenta como bloque
