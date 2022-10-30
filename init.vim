@@ -1,7 +1,7 @@
-"set runtimepath^=~/.vim/after
+set runtimepath^=~/.vim/after
 let g:python3_host_prog="/usr/bin/python3"
 "let g:loaded_python3_provider = 0 " Desactivar suporte de python
-"let &packpath=&runtimepath
+let &packpath=&runtimepath
 
 " Partes vim
 source $HOME/.config/nvim/conf/generales.vim
@@ -34,7 +34,7 @@ source $HOME/.config/nvim/conf/confPluggins/indent-blankline.lua
 source $HOME/.config/nvim/conf/confPluggins/ultisnips.vim
 
 " treesitter
-source $HOME/.config/nvim/conf/confPluggins/treesitter.lua
+runtime $HOME/.config/nvim/conf/confPluggins/treesitter.lua
 
 " Lualine
 source $HOME/.config/nvim/conf/confPluggins/lualine.lua
@@ -47,9 +47,6 @@ source $HOME/.config/nvim/conf/confPluggins/bufferline.lua
 
 " Floaterm
 source $HOME/.config/nvim/conf/confPluggins/floaterm.vim
-
-" fzf
-"source $HOME/.config/nvim/conf/confPluggins/fzf.vim
 
 " gitsigns
 source $HOME/.config/nvim/conf/confPluggins/gitsigns.lua
