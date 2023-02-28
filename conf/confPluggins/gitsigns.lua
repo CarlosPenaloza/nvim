@@ -39,3 +39,10 @@ require('gitsigns').setup {
     enable = false
   },
 }
+
+-- Actions
+vim.keymap.set('n', '<leader>hn', ':Gitsigns next_hunk<CR>')
+vim.keymap.set('n', '<leader>hm', ':Gitsigns prev_hunk<CR>')
+vim.keymap.set('n', '<leader>hr', ':Gitsigns reset_hunk<CR>')
+vim.keymap.set('n', '<leader>hd', ':Gitsigns diffthis<CR>')
+vim.keymap.set('n', '<leader>tb', ':Gitsigns toggle_current_line_blame<CR>')

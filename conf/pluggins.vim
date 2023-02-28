@@ -2,29 +2,23 @@ call plug#begin('~/.vim/plugged')
 
 " Temas
 Plug 'arcticicestudio/nord-vim'
-Plug 'sainnhe/sonokai'
-Plug 'EdenEast/nightfox.nvim'
-Plug 'sainnhe/gruvbox-material'
 Plug 'catppuccin/vim', { 'as': 'catppuccin' }
-Plug 'rakr/vim-one'
 
 "IDE
 Plug 'preservim/nerdtree' " Arbol de archivos
 Plug 'Xuyuanp/nerdtree-git-plugin' " Git en nerdtree
 Plug 'christoomey/vim-tmux-navigator' " Moverse entre pantallas vim o nvim
 Plug 'lewis6991/gitsigns.nvim' " Muestra lineas que han sufrido cambio desde git
-Plug 'scrooloose/nerdcommenter' " Sirve para hacer comentarios
-Plug 'jiangmiao/auto-pairs' "Cierra en auomatico llaves, parentesis, comillas, etc.
 Plug 'ryanoasis/vim-devicons' " Poner iconos de tipos de archivos en nerdtree
+Plug 'echasnovski/mini.nvim', { 'branch': 'stable' }
 
 " Syntax
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
 Plug 'tiagofumo/vim-nerdtree-syntax-highlight'
 Plug 'prettier/vim-prettier', { 'do': 'yarn install --frozen-lockfile --production' } " Acomodar sintaxis
 Plug 'norcalli/nvim-colorizer.lua' " Da color a los codigos de colores hex, rga, rgba, etc en css.
-Plug 'andymass/vim-matchup' " Colorer parentesis, llaves, etc.
-Plug 'tpope/vim-surround' " Alternativa surround
 Plug 'lukas-reineke/indent-blankline.nvim' " Resalta saltos de linea, identaciones, espacios, etc.
+Plug 'andymass/vim-matchup' " Colorer parentesis, llaves, etc.
 
 " status bar - Ayuda a que se acomode la barra que se encuentra abajo de vim, la cual nos dice el modo en el que estamos, lenguaje, etc.
 Plug 'nvim-lualine/lualine.nvim'

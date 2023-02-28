@@ -48,3 +48,5 @@ source $HOME/.config/nvim/conf/confPluggins/gitsigns.lua
 " lsp-zero
 source $HOME/.config/nvim/conf/confPluggins/lsp-zero.lua
 
+" mini
+source $HOME/.config/nvim/conf/confPluggins/mini.lua
