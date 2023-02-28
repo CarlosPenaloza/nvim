@@ -1,15 +1,14 @@
 call plug#begin('~/.vim/plugged')
 
 " Temas
-Plug 'pacokwon/onedarkhc.vim'
 Plug 'arcticicestudio/nord-vim'
-Plug 'dracula/vim', { 'as': 'dracula' }
-Plug 'morhetz/gruvbox'
-Plug 'sonph/onehalf', { 'rtp': 'vim' }
 Plug 'sainnhe/sonokai'
+Plug 'EdenEast/nightfox.nvim'
+Plug 'sainnhe/gruvbox-material'
+Plug 'catppuccin/vim', { 'as': 'catppuccin' }
+Plug 'rakr/vim-one'
 
 "IDE
-Plug 'easymotion/vim-easymotion' " Necesario para la creacion de atajos
 Plug 'preservim/nerdtree' " Arbol de archivos
 Plug 'Xuyuanp/nerdtree-git-plugin' " Git en nerdtree
 Plug 'christoomey/vim-tmux-navigator' " Moverse entre pantallas vim o nvim
@@ -20,9 +19,10 @@ Plug 'ryanoasis/vim-devicons' " Poner iconos de tipos de archivos en nerdtree
 
 " Syntax
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
+Plug 'tiagofumo/vim-nerdtree-syntax-highlight'
 Plug 'prettier/vim-prettier', { 'do': 'yarn install --frozen-lockfile --production' } " Acomodar sintaxis
 Plug 'norcalli/nvim-colorizer.lua' " Da color a los codigos de colores hex, rga, rgba, etc en css.
-Plug 'https://github.com/adelarsq/vim-matchit' " Colorer parentesis, llaves, etc.
+Plug 'andymass/vim-matchup' " Colorer parentesis, llaves, etc.
 Plug 'tpope/vim-surround' " Alternativa surround
 Plug 'lukas-reineke/indent-blankline.nvim' " Resalta saltos de linea, identaciones, espacios, etc.
 
@@ -30,13 +30,22 @@ Plug 'lukas-reineke/indent-blankline.nvim' " Resalta saltos de linea, identacion
 Plug 'nvim-lualine/lualine.nvim'
 Plug 'kyazdani42/nvim-web-devicons'
 
-" autocomplete
-Plug 'neoclide/coc.nvim', {'branch': 'release'} " Autocompleta lenguajes
-Plug 'honza/vim-snippets'
-
-" LitElement
-Plug 'jonsmithers/vim-html-template-literals'
-Plug 'pangloss/vim-javascript'
+" AUTOCOMPLETAR
+" LSP Support
+Plug 'neovim/nvim-lspconfig'             " Required
+Plug 'williamboman/mason.nvim'           " Optional
+Plug 'williamboman/mason-lspconfig.nvim' " Optional
+" Autocompletion Engine
+Plug 'hrsh7th/nvim-cmp'         " Required
+Plug 'hrsh7th/cmp-nvim-lsp'     " Required
+Plug 'hrsh7th/cmp-buffer'       " Optional
+Plug 'hrsh7th/cmp-path'         " Optional
+Plug 'saadparwaiz1/cmp_luasnip' " Optional
+Plug 'hrsh7th/cmp-nvim-lua'     " Optional
+"  Snippets
+Plug 'L3MON4D3/LuaSnip'             " Required
+Plug 'rafamadriz/friendly-snippets' " Optional
+Plug 'VonHeikemen/lsp-zero.nvim', {'branch': 'v1.x'}
 
 " Lens - autoajusta pantallas
 Plug 'camspiers/lens.vim'

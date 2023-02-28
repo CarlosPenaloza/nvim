@@ -7,8 +7,7 @@ let mapleader = " "
  "Generales
 nmap <Leader>w :w<CR>
 nmap <Leader>Q :q<CR>
-nmap <Leader>W :wq!<CR>
-nmap <Leader>s <Plug>(easymotion-s2)
+nmap <Leader>W :wq<CR>
 
 " Comentarios
 " espacio c espacio comenta la linea actual
@@ -35,3 +34,6 @@ nmap <leader>sp :sp<CR>
 "Salto de linea sin cambiar a modo insertar
 nmap <Leader>o o<ESC>
 nmap <Leader>O O<ESC>
+
+" Salir filtrado
+nmap <ESC> :noh<CR>

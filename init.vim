@@ -15,9 +15,6 @@ source $HOME/.config/nvim/conf/confPluggins/tmux-navigator.vim
 " NERDTree
 source $HOME/.config/nvim/conf/confPluggins/nerdtree.vim
 
-" Coc
-source $HOME/.config/nvim/conf/confPluggins/coc.vim
-
 " prettier
 source $HOME/.config/nvim/conf/confPluggins/prettier.vim
 
@@ -29,9 +26,6 @@ source $HOME/.config/nvim/conf/confPluggins/airline.vim
 
 " indent_blankline
 source $HOME/.config/nvim/conf/confPluggins/indent-blankline.lua
-
-" ultisnips
-source $HOME/.config/nvim/conf/confPluggins/ultisnips.vim
 
 " treesitter
 runtime $HOME/.config/nvim/conf/confPluggins/treesitter.lua
@@ -50,3 +44,7 @@ source $HOME/.config/nvim/conf/confPluggins/floaterm.vim
 
 " gitsigns
 source $HOME/.config/nvim/conf/confPluggins/gitsigns.lua
+
+" lsp-zero
+source $HOME/.config/nvim/conf/confPluggins/lsp-zero.lua
+
