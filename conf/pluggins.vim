@@ -8,11 +8,11 @@ Plug 'catppuccin/vim', { 'as': 'catppuccin' }
 Plug 'preservim/nerdtree' " Arbol de archivos
 Plug 'Xuyuanp/nerdtree-git-plugin' " Git en nerdtree
 Plug 'christoomey/vim-tmux-navigator' " Moverse entre pantallas vim o nvim
-Plug 'lewis6991/gitsigns.nvim' " Muestra lineas que han sufrido cambio desde git
+Plug 'lewis6991/gitsigns.nvim', { 'tag': 'v0.6' } " Muestra lineas que han sufrido cambio desde git
 Plug 'ryanoasis/vim-devicons' " Poner iconos de tipos de archivos en nerdtree
 Plug 'echasnovski/mini.nvim', { 'branch': 'stable' }
 
-" Syntax
+" Syntavx
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
 Plug 'tiagofumo/vim-nerdtree-syntax-highlight'
 Plug 'prettier/vim-prettier', { 'do': 'yarn install --frozen-lockfile --production' } " Acomodar sintaxis

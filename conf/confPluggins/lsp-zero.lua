@@ -1,6 +1,7 @@
-local lsp = require('lsp-zero').preset('recommended')
+local lsp = require("lsp-zero")
+local mason = require("mason")
 
-vim.opt.signcolumn = 'yes'
+lsp.preset("recommended")
 
 lsp.ensure_installed({
   'cssmodules_ls',
@@ -14,16 +15,81 @@ lsp.ensure_installed({
   'lua_ls',
   'marksman',
   'remark_ls',
+  'rust_analyzer',
   'stylelint_lsp',
   'tsserver',
   'vimls',
 })
 
+mason.setup()
+-- Fix Undefined global 'vim'
+lsp.configure("lua_ls", {
+  settings = {
+    Lua = {
+      diagnostics = {
+        globals = { "vim" },
+      },
+    },
+  },
+})
+
+local has_words_before = function()
+  local line, col = unpack(vim.api.nvim_win_get_cursor(0))
+  return col ~= 0 and vim.api.nvim_buf_get_lines(0, line - 1, line, true)[1]:sub(col, col):match("%s") == nil
+end
+
+local cmp = require("cmp")
+local cmp_select = { behavior = cmp.SelectBehavior.Select }
+local cmp_mappings = lsp.defaults.cmp_mappings({
+  ["<C-p>"] = cmp.mapping.select_prev_item(cmp_select),
+  ["<C-n>"] = cmp.mapping.select_next_item(cmp_select),
+  ["<C-y>"] = cmp.mapping.confirm({ select = true }),
+  ["<C-Space>"] = cmp.mapping.complete(),
+  ["<Tab>"] = cmp.mapping(function(fallback)
+    if cmp.visible() then
+      cmp.select_next_item()
+    elseif has_words_before() then
+      cmp.complete()
+    else
+      fallback() -- The fallback function sends a already mapped key. In this case, it's probably `<Tab>`.
+    end
+  end, { "i", "s" }),
+  ["<S-Tab>"] = cmp.mapping(function()
+    if cmp.visible() then
+      cmp.select_prev_item()
+    end
+  end, { "i", "s" }),
+})
+
+lsp.setup_nvim_cmp({
+  mapping = cmp_mappings,
+  sources = {
+    { name = 'path' },
+    { name = 'nvim_lsp', keyword_length = 0 },
+    { name = 'buffer', keyword_length = 3 },
+    { name = 'luasnip', keyword_length = 2 },
+  }
+})
+
+
+lsp.set_preferences({
+  suggest_lsp_servers = false,
+  set_lsp_keymaps = { omit = { '<C-k>' } },
+  sign_icons = {
+    error = '✘',
+    warn = '▲',
+    hint = '⚑',
+    info = "I",
+  }
+})
+
+local augroup = vim.api.nvim_create_augroup("LspFormatting", {})
+
 lsp.on_attach(function(client, bufnr)
   local opts = { buffer = bufnr, remap = false }
 
   vim.keymap.set("n", "gd", vim.lsp.buf.definition, opts)
-  vim.keymap.set("n", "gh", vim.lsp.buf.hover, opts)
+  vim.keymap.set("n", "K", vim.lsp.buf.hover, opts)
   vim.keymap.set("n", "<leader>vws", vim.lsp.buf.workspace_symbol, opts)
   vim.keymap.set("n", "<leader>vd", vim.diagnostic.open_float, opts)
   vim.keymap.set("n", "<leader>n", vim.diagnostic.goto_next, opts)
@@ -34,4 +100,32 @@ lsp.on_attach(function(client, bufnr)
   vim.keymap.set("n", "<leader>sh", vim.lsp.buf.signature_help, opts)
 end)
 
+lsp.nvim_workspace()
+local function format_on_save(client, bufnr)
+  if client.supports_method('textDocument/formatting') then
+    vim.api.nvim_clear_autocmds({
+      group = augroup,
+      buffer = bufnr,
+    })
+    vim.api.nvim_create_autocmd('BufWritePre', {
+      group = augroup,
+      buffer = bufnr,
+      callback = function()
+        vim.lsp.buf.format({ bufnr = bufnr })
+      end,
+    })
+  end
+end
+
+
 lsp.setup()
+
+vim.diagnostic.config({
+  virtual_text = true,
+  severity_sort = false,
+  underline = true,
+  update_in_insert = false,
+  float = {
+    source = "always", -- Or "if_many"
+  },
+})

@@ -13,6 +13,7 @@ set expandtab
 set softtabstop=2
 set shiftwidth=2
 set laststatus=2
+set signcolumn=yes
 set clipboard=unnamedplus
 
 " Canal: - Yt
