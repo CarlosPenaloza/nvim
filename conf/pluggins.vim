@@ -1,26 +1,30 @@
 call plug#begin('~/.vim/plugged')
 
 " Temas
-Plug 'arcticicestudio/nord-vim'
-Plug 'catppuccin/vim', { 'as': 'catppuccin' }
+Plug 'catppuccin/nvim', { 'as': 'catppuccin' }
 
-"IDE
+" Arbol de archivos
 Plug 'preservim/nerdtree' " Arbol de archivos
 Plug 'Xuyuanp/nerdtree-git-plugin' " Git en nerdtree
-Plug 'christoomey/vim-tmux-navigator' " Moverse entre pantallas vim o nvim
-Plug 'lewis6991/gitsigns.nvim', { 'tag': 'v0.6' } " Muestra lineas que han sufrido cambio desde git
 Plug 'ryanoasis/vim-devicons' " Poner iconos de tipos de archivos en nerdtree
-Plug 'echasnovski/mini.nvim', { 'branch': 'stable' }
+Plug 'johnstef99/vim-nerdtree-syntax-highlight' " Pinta texto en el arbol de archivos
 
-" Syntavx
+" Atajos y movimientos
+Plug 'christoomey/vim-tmux-navigator' " Moverse entre pantallas vim o nvim
+Plug 'echasnovski/mini.nvim' " Atajos como: comentarios, moverse entre lineas, multiple seleccion, poner llaves, etc.
+
+" Sintaxis
+Plug 'lewis6991/gitsigns.nvim' " Muestra lineas que han sufrido cambio desde git
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
-Plug 'tiagofumo/vim-nerdtree-syntax-highlight'
 Plug 'prettier/vim-prettier', { 'do': 'yarn install --frozen-lockfile --production' } " Acomodar sintaxis
 Plug 'norcalli/nvim-colorizer.lua' " Da color a los codigos de colores hex, rga, rgba, etc en css.
 Plug 'lukas-reineke/indent-blankline.nvim' " Resalta saltos de linea, identaciones, espacios, etc.
 Plug 'andymass/vim-matchup' " Colorer parentesis, llaves, etc.
+" Plug 'kevinhwang91/nvim-ufo' " Para hacer codigo mas chico
+" Plug 'kevinhwang91/promise-async'
 
-" status bar - Ayuda a que se acomode la barra que se encuentra abajo de vim, la cual nos dice el modo en el que estamos, lenguaje, etc.
+" Barra superior e inferior
+Plug 'akinsho/bufferline.nvim'
 Plug 'nvim-lualine/lualine.nvim'
 Plug 'kyazdani42/nvim-web-devicons'
 
@@ -41,16 +45,13 @@ Plug 'L3MON4D3/LuaSnip'             " Required
 Plug 'rafamadriz/friendly-snippets' " Optional
 Plug 'VonHeikemen/lsp-zero.nvim', {'branch': 'v1.x'}
 
-" Lens - autoajusta pantallas
+" Autoajustar Pantalla
 Plug 'camspiers/lens.vim'
-
-" Bufferline - Agrega la pestaña de arriba de vim, la cual nos dice en que pagina nos encontramos
-Plug 'akinsho/bufferline.nvim', { 'tag': 'v2.*' }
 
 " Pantalla flotante
 Plug 'voldikss/vim-floaterm'
 
-" Telescope
+" Busqueda de archivos
 Plug 'nvim-lua/plenary.nvim'
 Plug 'nvim-telescope/telescope.nvim', { 'tag': '0.1.0' }
 

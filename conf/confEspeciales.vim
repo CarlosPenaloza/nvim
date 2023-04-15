@@ -1,5 +1,3 @@
 " Temas
-"set background=dark
-colorscheme catppuccin_frappe
+colorscheme catppuccin
 autocmd FileType scss setl iskeyword+=@-@
-let g:indent_guides_enable_on_vim_startup = 1

@@ -9,10 +9,6 @@ nmap <Leader>w :w<CR>
 nmap <Leader>Q :q<CR>
 nmap <Leader>W :wq<CR>
 
-" Comentarios
-" espacio c espacio comenta la linea actual
-" espacio c s comenta como bloque
-
 " prettier-vim
 nmap <Leader>pt <Plug>(Prettier)
 
