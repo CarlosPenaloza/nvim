@@ -4,7 +4,6 @@ let &packpath=&runtimepath
 
 " Bases Vim
 source $HOME/.config/nvim/conf/atajos.vim
-source $HOME/.config/nvim/conf/confEspeciales.vim
 source $HOME/.config/nvim/conf/generales.vim
 source $HOME/.config/nvim/conf/pluggins.vim
 source $HOME/.config/nvim/conf/confPluggins/catppuccin.lua
@@ -32,6 +31,7 @@ source $HOME/.config/nvim/conf/confPluggins/lualine.lua
 
 " Buscar Archivos
 source $HOME/.config/nvim/conf/confPluggins/telescope.vim
+source $HOME/.config/nvim/conf/confPluggins/telescope.lua
 
 " Terminal
 source $HOME/.config/nvim/conf/confPluggins/floaterm.vim
