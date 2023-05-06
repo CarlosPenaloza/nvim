@@ -1,6 +1,7 @@
 syntax enable
 set number
 set relativenumber
+set cursorline
 set mouse=nv
 set numberwidth=1
 set showcmd
@@ -21,4 +22,7 @@ set smartindent
 set splitbelow
 set splitright
 set termguicolors
-" set foldmethod=manual
+set foldmethod=expr
+set foldexpr=nvim_treesitter#foldexpr()
+set tabstop=2
+set nofoldenable 

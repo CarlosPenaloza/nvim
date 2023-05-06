@@ -4,21 +4,22 @@ local mason = require("mason")
 lsp.preset("recommended")
 
 lsp.ensure_installed({
+  'bashls',
   'cssmodules_ls',
   'cssls',
-  'ember',
+  'cucumber_language_server',
   'emmet_ls',
   'eslint',
-  'glint',
   'html',
   'jsonls',
   'lua_ls',
   'marksman',
+  'quick_lint_js',
   'remark_ls',
   'rust_analyzer',
-  'stylelint_lsp',
   'tsserver',
   'vimls',
+  'vtsls'
 })
 
 mason.setup()

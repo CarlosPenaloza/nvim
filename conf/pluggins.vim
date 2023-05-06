@@ -16,17 +16,20 @@ Plug 'echasnovski/mini.nvim' " Atajos como: comentarios, moverse entre lineas, m
 " Sintaxis
 Plug 'lewis6991/gitsigns.nvim' " Muestra lineas que han sufrido cambio desde git
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
+Plug 'HiPhish/nvim-ts-rainbow2' " module nvim-treesitter
 Plug 'prettier/vim-prettier', { 'do': 'yarn install --frozen-lockfile --production' } " Acomodar sintaxis
 Plug 'NvChad/nvim-colorizer.lua' " Da color a los codigos de colores hex, rga, rgba, etc en css.
 Plug 'lukas-reineke/indent-blankline.nvim' " Resalta saltos de linea, identaciones, espacios, etc.
 Plug 'andymass/vim-matchup' " Colorer parentesis, llaves, etc.
-" Plug 'kevinhwang91/nvim-ufo' " Para hacer codigo mas chico
-" Plug 'kevinhwang91/promise-async'
+Plug 'anuvyklack/pretty-fold.nvim' " fold
+Plug 'anuvyklack/fold-preview.nvim' "Muestra lo que esta dentro del fold
+Plug 'anuvyklack/keymap-amend.nvim' "Plugin necesario para usar fold-preview
 
 " Barra superior e inferior
 Plug 'akinsho/bufferline.nvim'
 Plug 'nvim-lualine/lualine.nvim'
 Plug 'kyazdani42/nvim-web-devicons'
+Plug 'preservim/tagbar'
 
 " AUTOCOMPLETAR
 " LSP Support
@@ -53,6 +56,6 @@ Plug 'voldikss/vim-floaterm'
 
 " Busqueda de archivos
 Plug 'nvim-lua/plenary.nvim'
-Plug 'nvim-telescope/telescope.nvim', { 'tag': '0.1.1' }
+Plug 'nvim-telescope/telescope.nvim', {'branch': '0.1.x'}
 
 call plug#end()
