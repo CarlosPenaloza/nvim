@@ -1,35 +1,39 @@
+local mocha = require("catppuccin.palettes").get_palette "mocha"
 require("bufferline").setup{
- options = {
-  max_name_length = 50,
-  tab_size = 11,
-  diagnostic = 'nvim_lsp'
+  highlights = require("catppuccin.groups.integrations.bufferline").get {
+      styles = { "italic", "bold" },
+      custom = {
+          all = {
+              fill = { bg = "#000000" },
+          },
+          mocha = {
+              background = { fg = mocha.text },
+          },
+          latte = {
+              background = { fg = "#000000" },
+          },
+      },
+  },
+  options = {
+    max_name_length = 50,
+    tab_size = 11,
+    diagnostics = 'nvim_lsp',
+    themable = true, -- allows highlight groups to be overriden i.e. sets highlights as default
+    indicator = {
+      icon = '▎', -- this should be omitted if indicator style is not 'icon'
+      style = 'icon',
+    },
+    truncate_names = true, -- whether or not tab names should be truncated
+    diagnostics_update_in_insert = false,
+    diagnostics_indicator = function(count, level, diagnostics_dict, context)
+      return "("..count..")"
+    end,
+    color_icons = true, -- whether or not to add the filetype icon highlights
+    always_show_bufferline = false,
+    hover = {
+      enabled = true,
+      delay = 200,
+      reveal = {'close'}
+    },
  },
-}
-
-custom_areas = {
-  right = function()
-    local result = {}
-    local seve = vim.diagnostic.severity
-    local error = #vim.diagnostic.get(0, {severity = seve.ERROR})
-    local warning = #vim.diagnostic.get(0, {severity = seve.WARN})
-    local info = #vim.diagnostic.get(0, {severity = seve.INFO})
-    local hint = #vim.diagnostic.get(0, {severity = seve.HINT})
-
-    if error ~= 0 then
-        table.insert(result, {text = "  " .. error, fg = "#EC5241"})
-    end
-
-    if warning ~= 0 then
-        table.insert(result, {text = "  " .. warning, fg = "#EFB839"})
-    end
-
-    if hint ~= 0 then
-        table.insert(result, {text = "  " .. hint, fg = "#A3BA5E"})
-    end
-
-    if info ~= 0 then
-        table.insert(result, {text = "  " .. info, fg = "#7EA9A7"})
-    end
-    return result
-  end,
 }

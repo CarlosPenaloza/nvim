@@ -36,10 +36,15 @@ require("catppuccin").setup({
         nvimtree = true,
         telescope = true,
         notify = false,
+        markdown = true,
         mini = true,
         mason = true,
         treesitter = true,
         treesitter_context = true,
+        indent_blankline = {
+            enabled = true,
+            colored_indent_levels = false,
+        },
         native_lsp = {
             enabled = true,
             virtual_text = {
@@ -54,10 +59,6 @@ require("catppuccin").setup({
                 warnings = { "underline" },
                 information = { "underline" },
             },
-        },
-        indent_blankline = {
-            enabled = true,
-            colored_indent_levels = false,
         },
     },
 })
