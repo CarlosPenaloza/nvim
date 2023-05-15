@@ -6,11 +6,11 @@ require('lualine').setup {
   },
   sections = {
     lualine_a = {
-      { 'mode', separator = { left = '' }, right_padding = 2 },
-      'branch',
+      { 'mode',     separator = { left = '' }, right_padding = 2 },
     },
     lualine_b = {
-      { 'filename', file_status=true, newfile_status=true, path=3}
+      { 'branch'},
+      { 'filename', file_status = true,           newfile_status = true, path = 1 }
     },
     lualine_c = {},
     lualine_x = {},

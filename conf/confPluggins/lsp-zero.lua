@@ -1,7 +1,46 @@
 local lsp = require("lsp-zero")
 local mason = require("mason")
+local cmp = require('cmp')
+local cmp_action = require('lsp-zero').cmp_action()
+local lspkind = require('lspkind')
 
-lsp.preset("recommended")
+lsp.on_attach(function(client, bufnr)
+  lsp.default_keymaps({ buffer = bufnr })
+  local opts = { buffer = bufnr }
+  vim.keymap.set({ 'n', 'x' }, 'gq', function()
+    vim.lsp.buf.format({ async = false, timeout_ms = 10000 })
+  end, opts)
+end)
+
+lsp.preset({
+  name = 'recommended',
+  set_lsp_keymaps = true,
+  call_servers = 'local',
+  manage_nvim_cmp = {
+    set_sources = 'recommended',
+    set_basic_mappings = true,
+    set_extra_mappings = false,
+    use_luasnip = true,
+    set_format = true,
+    documentation_window = true,
+  },
+  suggest_lsp_servers = false,
+  setup_servers_on_start = true,
+  float_border = 'none',
+  configure_diagnostics = true,
+})
+
+
+lsp.set_sign_icons({
+  error = '✘',
+  warn = '▲',
+  hint = '⚑',
+  info = '»'
+})
+
+vim.diagnostic.config({
+  virtual_text = true,
+})
 
 lsp.ensure_installed({
   'bashls',
@@ -23,6 +62,7 @@ lsp.ensure_installed({
 })
 
 mason.setup()
+
 -- Fix Undefined global 'vim'
 lsp.configure("lua_ls", {
   settings = {
@@ -34,99 +74,28 @@ lsp.configure("lua_ls", {
   },
 })
 
-local has_words_before = function()
-  local line, col = unpack(vim.api.nvim_win_get_cursor(0))
-  return col ~= 0 and vim.api.nvim_buf_get_lines(0, line - 1, line, true)[1]:sub(col, col):match("%s") == nil
-end
-
-local cmp = require("cmp")
-local cmp_select = { behavior = cmp.SelectBehavior.Select }
-local cmp_mappings = lsp.defaults.cmp_mappings({
-  ["<C-p>"] = cmp.mapping.select_prev_item(cmp_select),
-  ["<C-n>"] = cmp.mapping.select_next_item(cmp_select),
-  ["<C-y>"] = cmp.mapping.confirm({ select = true }),
-  ["<C-Space>"] = cmp.mapping.complete(),
-  ["<Tab>"] = cmp.mapping(function(fallback)
-    if cmp.visible() then
-      cmp.select_next_item()
-    elseif has_words_before() then
-      cmp.complete()
-    else
-      fallback() -- The fallback function sends a already mapped key. In this case, it's probably `<Tab>`.
-    end
-  end, { "i", "s" }),
-  ["<S-Tab>"] = cmp.mapping(function()
-    if cmp.visible() then
-      cmp.select_prev_item()
-    end
-  end, { "i", "s" }),
-})
-
-lsp.setup_nvim_cmp({
-  mapping = cmp_mappings,
-  sources = {
-    { name = 'path' },
-    { name = 'nvim_lsp', keyword_length = 0 },
-    { name = 'buffer', keyword_length = 3 },
-    { name = 'luasnip', keyword_length = 2 },
-  }
-})
-
-
-lsp.set_preferences({
-  suggest_lsp_servers = false,
-  set_lsp_keymaps = { omit = { '<C-k>' } },
-  sign_icons = {
-    error = '✘',
-    warn = '▲',
-    hint = '⚑',
-    info = "I",
-  }
-})
-
-local augroup = vim.api.nvim_create_augroup("LspFormatting", {})
-
-lsp.on_attach(function(client, bufnr)
-  local opts = { buffer = bufnr, remap = false }
-
-  vim.keymap.set("n", "gd", vim.lsp.buf.definition, opts)
-  vim.keymap.set("n", "K", vim.lsp.buf.hover, opts)
-  vim.keymap.set("n", "<leader>vws", vim.lsp.buf.workspace_symbol, opts)
-  vim.keymap.set("n", "<leader>vd", vim.diagnostic.open_float, opts)
-  vim.keymap.set("n", "<leader>n", vim.diagnostic.goto_next, opts)
-  vim.keymap.set("n", "<leader>m", vim.diagnostic.goto_prev, opts)
-  vim.keymap.set("n", "<leader>vca", vim.lsp.buf.code_action, opts)
-  vim.keymap.set("n", "<leader>vrr", vim.lsp.buf.references, opts)
-  vim.keymap.set("n", "<leader>vrn", vim.lsp.buf.rename, opts)
-  vim.keymap.set("n", "<leader>sh", vim.lsp.buf.signature_help, opts)
-end)
-
-lsp.nvim_workspace()
-local function format_on_save(client, bufnr)
-  if client.supports_method('textDocument/formatting') then
-    vim.api.nvim_clear_autocmds({
-      group = augroup,
-      buffer = bufnr,
-    })
-    vim.api.nvim_create_autocmd('BufWritePre', {
-      group = augroup,
-      buffer = bufnr,
-      callback = function()
-        vim.lsp.buf.format({ bufnr = bufnr })
-      end,
-    })
-  end
-end
-
-
 lsp.setup()
 
-vim.diagnostic.config({
-  virtual_text = true,
-  severity_sort = false,
-  underline = true,
-  update_in_insert = false,
-  float = {
-    source = "always", -- Or "if_many"
+cmp.setup({
+  window = {
+    completion = cmp.config.window.bordered(),
+    documentation = cmp.config.window.bordered(),
   },
+  mapping = {
+    ['<CR>'] = cmp.mapping.confirm({ select = true }),
+    ['<C-Space>'] = cmp.mapping.complete(),
+    ['<Tab>'] = cmp_action.tab_complete(),
+    ['<S-Tab>'] = cmp_action.select_prev_or_fallback(),
+    ['<C-u>'] = cmp.mapping.scroll_docs(-4),
+    ['<C-d>'] = cmp.mapping.scroll_docs(4),
+    ['<C-f>'] = cmp_action.luasnip_jump_forward(),
+    ['<C-b>'] = cmp_action.luasnip_jump_backward(),
+  },
+  formatting = {
+    format = lspkind.cmp_format({
+      mode = 'symbol',       -- show only symbol annotations
+      maxwidth = 50,         -- prevent the popup from showing more than provided characters (e.g 50 will not show more than 50 characters)
+      ellipsis_char = '...', -- when popup menu exceed maxwidth, the truncated part would show ellipsis_char instead (must define maxwidth first)
+    })
+  }
 })

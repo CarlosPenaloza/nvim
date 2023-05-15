@@ -17,7 +17,6 @@ Plug 'echasnovski/mini.nvim' " Atajos como: comentarios, moverse entre lineas, m
 Plug 'lewis6991/gitsigns.nvim' " Muestra lineas que han sufrido cambio desde git
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
 Plug 'HiPhish/nvim-ts-rainbow2' " module nvim-treesitter
-Plug 'prettier/vim-prettier', { 'do': 'yarn install --frozen-lockfile --production' } " Acomodar sintaxis
 Plug 'NvChad/nvim-colorizer.lua' " Da color a los codigos de colores hex, rga, rgba, etc en css.
 Plug 'lukas-reineke/indent-blankline.nvim' " Resalta saltos de linea, identaciones, espacios, etc.
 Plug 'andymass/vim-matchup' " Colorer parentesis, llaves, etc.
@@ -46,7 +45,8 @@ Plug 'hrsh7th/cmp-nvim-lua'     " Optional
 "  Snippets
 Plug 'L3MON4D3/LuaSnip'             " Required
 Plug 'rafamadriz/friendly-snippets' " Optional
-Plug 'VonHeikemen/lsp-zero.nvim', {'branch': 'v1.x'}
+Plug 'onsails/lspkind.nvim'
+Plug 'VonHeikemen/lsp-zero.nvim', {'branch': 'v2.x'}
 
 " Autoajustar Pantalla
 Plug 'camspiers/lens.vim'

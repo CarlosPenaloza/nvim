@@ -18,12 +18,10 @@ source $HOME/.config/nvim/conf/confPluggins/nerdtree-git-plugin.vim
 source $HOME/.config/nvim/conf/confPluggins/vim-nerdtree-syntax-highlight.vim
 
 " Sintaxis
-" source $HOME/.config/nvim/conf/confPluggins/ufo.lua
 source $HOME/.config/nvim/conf/confPluggins/pretty-fold.lua
 source $HOME/.config/nvim/conf/confPluggins/colorizer.lua
 source $HOME/.config/nvim/conf/confPluggins/gitsigns.lua
 source $HOME/.config/nvim/conf/confPluggins/indent-blankline.lua
-source $HOME/.config/nvim/conf/confPluggins/prettier.vim
 source $HOME/.config/nvim/conf/confPluggins/treesitter.lua
 
 " Barra superior e inferior

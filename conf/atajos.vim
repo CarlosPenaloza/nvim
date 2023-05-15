@@ -9,9 +9,6 @@ nmap <Leader>w :w<CR>
 nmap <Leader>Q :q<CR>
 nmap <Leader>W :wq<CR>
 
-" prettier-vim
-nmap <Leader>pt <Plug>(Prettier)
-
 " Tamaño Buffers
 nmap <silent> <right> :vertical resize +5<CR>
 nmap <silent> <left> :vertical resize -5<CR>
@@ -26,10 +23,6 @@ nmap <Leader>q :bdelete<CR>
 " Splits
 nmap <leader>vs :vsp<CR>
 nmap <leader>sp :sp<CR>
-
-"Salto de linea sin cambiar a modo insertar
-nmap <Leader>o o<ESC>
-nmap <Leader>O O<ESC>
 
 " Salir filtrado
 nmap <ESC> :noh<CR>
