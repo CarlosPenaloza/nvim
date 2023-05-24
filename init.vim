@@ -13,9 +13,7 @@ source $HOME/.config/nvim/conf/confPluggins/mini.lua
 source $HOME/.config/nvim/conf/confPluggins/tmux-navigator.vim
 
 " Arbol de archivos
-source $HOME/.config/nvim/conf/confPluggins/nerdtree.vim
-source $HOME/.config/nvim/conf/confPluggins/nerdtree-git-plugin.vim
-source $HOME/.config/nvim/conf/confPluggins/vim-nerdtree-syntax-highlight.vim
+source $HOME/.config/nvim/conf/confPluggins/nvim-tree.lua
 
 " Sintaxis
 source $HOME/.config/nvim/conf/confPluggins/pretty-fold.lua
@@ -30,7 +28,6 @@ source $HOME/.config/nvim/conf/confPluggins/lualine.lua
 source $HOME/.config/nvim/conf/confPluggins/tagbar.vim
 
 " Buscar Archivos
-source $HOME/.config/nvim/conf/confPluggins/telescope.vim
 source $HOME/.config/nvim/conf/confPluggins/telescope.lua
 
 " Terminal

@@ -15,8 +15,9 @@ require("bufferline").setup {
     },
   },
   options = {
-    max_name_length = 50,
-    tab_size = 11,
+    max_name_length = 18,
+    max_prefix_length = 15, -- prefix used when a buffer is de-duplicated
+    tab_size = 18,
     diagnostics = 'nvim_lsp',
     themable = true, -- allows highlight groups to be overriden i.e. sets highlights as default
     indicator = {
@@ -29,7 +30,8 @@ require("bufferline").setup {
       return "(" .. count .. ")"
     end,
     color_icons = true, -- whether or not to add the filetype icon highlights
-    always_show_bufferline = false,
+    always_show_bufferline = true,
+    enforce_regular_tabs = true,
     hover = {
       enabled = true,
       delay = 200,

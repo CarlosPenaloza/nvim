@@ -16,8 +16,8 @@ nmap <silent> <up> : resize +5<CR>
 nmap <silent> <down> : resize -5<CR>
 
 " Buffers
-nmap <Leader>l :bnext<CR>
-nmap <Leader>h :bprevious<CR>
+nmap <Leader>k :bnext<CR>
+nmap <Leader>j :bprevious<CR>
 nmap <Leader>q :bdelete<CR>
 
 " Splits

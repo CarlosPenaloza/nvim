@@ -1,23 +1,51 @@
 require('telescope').setup {
   defaults = {
-    -- Default configuration for telescope goes here:
-    -- config_key = value,
-    -- ..
+    layout_strategy = 'vertical',
+    layout_config = {
+      bottom_pane = {
+        height = 25,
+        preview_cutoff = 120,
+        prompt_position = "top"
+      },
+      center = {
+        height = 0.4,
+        preview_cutoff = 40,
+        prompt_position = "top",
+        width = 0.5
+      },
+      cursor = {
+        height = 0.9,
+        preview_cutoff = 40,
+        width = 0.8
+      },
+      horizontal = {
+        height = 0.9,
+        preview_cutoff = 120,
+        prompt_position = "bottom",
+        width = 0.8
+      },
+      vertical = {
+        height = 0.8,
+        preview_cutoff = 40,
+        prompt_position = "bottom",
+        width = 0.9
+      }
+    },
+    initial_mode = 'normal',
+    preview = {
+      treesitter = true
+    },
   },
   pickers = {
-    -- Default configuration for builtin pickers goes here:
-    -- picker_name = {
-    --   picker_config_key = value,
-    --   ...
-    -- }
-    -- Now the picker_config_key will be applied every time you call this
-    -- builtin picker
   },
   extensions = {
-    -- Your extension configuration goes here:
-    -- extension_name = {
-    --   extension_config_key = value,
-    -- }
-    -- please take a look at the readme of the extension you want to configure
   }
 }
+
+vim.keymap.set('n', '<leader>ff', ':Telescope find_files<CR>')
+vim.keymap.set('n', '<leader>FF', ':Telescope git_status<CR>')
+vim.keymap.set('n', '<leader>fg', ':Telescope live_grep<CR>')
+vim.keymap.set('n', '<leader>ft', ':Telescope treesitter<CR>')
+vim.keymap.set('n', '<leader>fb', ':Telescope buffers<CR>')
+vim.keymap.set('n', '<leader>fh', ':Telescope help_tags<CR>')
+vim.keymap.set('n', '<leader>fk', ':Telescope keymaps<CR>')
