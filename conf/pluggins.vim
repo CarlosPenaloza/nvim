@@ -4,10 +4,6 @@ call plug#begin('~/.vim/plugged')
 Plug 'catppuccin/nvim', { 'as': 'catppuccin' }
 
 " Arbol de archivos
-" Plug 'preservim/nerdtree' " Arbol de archivos
-" Plug 'Xuyuanp/nerdtree-git-plugin' " Git en nerdtree
-" Plug 'ryanoasis/vim-devicons' " Poner iconos de tipos de archivos en nerdtree
-" Plug 'johnstef99/vim-nerdtree-syntax-highlight' " Pinta texto en el arbol de archivos
 Plug 'nvim-tree/nvim-web-devicons' " optional
 Plug 'nvim-tree/nvim-tree.lua'
 
