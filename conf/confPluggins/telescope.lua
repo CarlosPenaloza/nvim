@@ -1,6 +1,6 @@
 require('telescope').setup {
   defaults = {
-    layout_strategy = 'vertical',
+    layout_strategy = 'horizontal',
     layout_config = {
       bottom_pane = {
         height = 25,
@@ -21,8 +21,8 @@ require('telescope').setup {
       horizontal = {
         height = 0.9,
         preview_cutoff = 120,
-        prompt_position = "bottom",
-        width = 0.8
+        prompt_position = "top",
+        width = 0.9
       },
       vertical = {
         height = 0.8,
@@ -43,7 +43,7 @@ require('telescope').setup {
 }
 
 vim.keymap.set('n', '<leader>ff', ':Telescope find_files<CR>')
-vim.keymap.set('n', '<leader>FF', ':Telescope git_status<CR>')
+vim.keymap.set('n', '<leader>fr', ':Telescope git_status<CR>')
 vim.keymap.set('n', '<leader>fg', ':Telescope live_grep<CR>')
 vim.keymap.set('n', '<leader>ft', ':Telescope treesitter<CR>')
 vim.keymap.set('n', '<leader>fb', ':Telescope buffers<CR>')

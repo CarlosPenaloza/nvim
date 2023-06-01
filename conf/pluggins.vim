@@ -43,7 +43,6 @@ Plug 'hrsh7th/cmp-nvim-lua'     " Optional
 "  Snippets
 Plug 'L3MON4D3/LuaSnip'             " Required
 Plug 'rafamadriz/friendly-snippets' " Optional
-Plug 'onsails/lspkind.nvim'
 Plug 'VonHeikemen/lsp-zero.nvim', {'branch': 'v2.x'}
 
 " Autoajustar Pantalla

@@ -48,8 +48,8 @@ require("nvim-tree").setup {
     group_empty = false,
     highlight_git = true,
     full_name = true,
-    highlight_opened_files = "none",
-    highlight_modified = "none",
+    highlight_opened_files = "name",
+    highlight_modified = "icon",
     root_folder_label = ":~:s?$?/..?",
     indent_width = 2,
     indent_markers = {
@@ -154,7 +154,7 @@ require("nvim-tree").setup {
     timeout = 400,
   },
   modified = {
-    enable = false,
+    enable = true,
     show_on_dirs = true,
     show_on_open_dirs = true,
   },

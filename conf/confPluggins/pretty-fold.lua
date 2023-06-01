@@ -11,5 +11,8 @@ require('pretty-fold').setup {
     }
   }
 }
-
-require('fold-preview').setup() --llamamos a fold-preview, este nos muestra lo que este dentro del fold --
+local keymap = vim.keymap
+keymap.amend = require('keymap-amend')
+local map = require('fold-preview').mapping
+keymap.amend('n', 'h',  map.show_close_preview_open_fold)
+keymap.amend('n', 'l',  map.close_preview_open_fold)

@@ -2,7 +2,6 @@ local lsp = require("lsp-zero")
 local mason = require("mason")
 local cmp = require('cmp')
 local cmp_action = require('lsp-zero').cmp_action()
-local lspkind = require('lspkind')
 
 lsp.on_attach(function(client, bufnr)
   lsp.default_keymaps({ buffer = bufnr })
@@ -92,10 +91,27 @@ cmp.setup({
     ['<C-b>'] = cmp_action.luasnip_jump_backward(),
   },
   formatting = {
-    format = lspkind.cmp_format({
-      mode = 'symbol',       -- show only symbol annotations
-      maxwidth = 50,         -- prevent the popup from showing more than provided characters (e.g 50 will not show more than 50 characters)
-      ellipsis_char = '...', -- when popup menu exceed maxwidth, the truncated part would show ellipsis_char instead (must define maxwidth first)
-    })
-  }
+    -- changing the order of fields so the icon is the first
+    fields = { 'menu', 'abbr', 'kind' },
+
+    -- here is where the change happens
+    format = function(entry, item)
+      local menu_icon = {
+        nvim_lsp = 'λ',
+        luasnip = '⋗',
+        buffer = 'Ω',
+        path = '🖫',
+        nvim_lua = 'Π',
+      }
+
+      item.menu = menu_icon[entry.source.name]
+      return item
+    end,
+  },
+  snippet = {
+    expand = function(args)
+      require("luasnip").lsp_expand(args.body)
+    end,
+  },
+
 })
