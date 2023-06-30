@@ -2,7 +2,16 @@ local lsp = require("lsp-zero")
 local mason = require("mason")
 local cmp = require('cmp')
 local cmp_action = require('lsp-zero').cmp_action()
+local lspkind = require('lspkind')
+local types = require("cmp.types")
+local str = require("cmp.utils.str")
 
+local t = function(str)
+	return vim.api.nvim_replace_termcodes(str, true, true, true)
+end
+
+
+-- format
 lsp.on_attach(function(client, bufnr)
   lsp.default_keymaps({ buffer = bufnr })
   local opts = { buffer = bufnr }
@@ -23,7 +32,7 @@ lsp.preset({
     set_format = true,
     documentation_window = true,
   },
-  suggest_lsp_servers = false,
+  suggest_lsp_servers = true,
   setup_servers_on_start = true,
   float_border = 'none',
   configure_diagnostics = true,
@@ -49,9 +58,11 @@ lsp.ensure_installed({
   'emmet_ls',
   'eslint',
   'html',
+  -- 'htmlbeautifier',
   'jsonls',
   'lua_ls',
   'marksman',
+  -- 'prettier',
   'quick_lint_js',
   'remark_ls',
   'rust_analyzer',
@@ -76,6 +87,9 @@ lsp.configure("lua_ls", {
 lsp.setup()
 
 cmp.setup({
+  -- completion = {
+  --   autocomplete = true
+  -- },
   window = {
     completion = cmp.config.window.bordered(),
     documentation = cmp.config.window.bordered(),
@@ -91,27 +105,43 @@ cmp.setup({
     ['<C-b>'] = cmp_action.luasnip_jump_backward(),
   },
   formatting = {
-    -- changing the order of fields so the icon is the first
-    fields = { 'menu', 'abbr', 'kind' },
+    fields = {
+      cmp.ItemField.Kind,
+      cmp.ItemField.Abbr,
+      cmp.ItemField.Menu,
+    },
+    format = lspkind.cmp_format({
+      with_text = false,
+      before = function(entry, vim_item)
+        -- Get the full snippet (and only keep first line)
+        local word = entry:get_insert_text()
+        if entry.completion_item.insertTextFormat == types.lsp.InsertTextFormat.Snippet then
+          word = vim.lsp.util.parse_snippet(word)
+        end
+        word = str.oneline(word)
 
-    -- here is where the change happens
-    format = function(entry, item)
-      local menu_icon = {
-        nvim_lsp = 'λ',
-        luasnip = '⋗',
-        buffer = 'Ω',
-        path = '🖫',
-        nvim_lua = 'Π',
-      }
+        -- concatenates the string
+        local max = 50
+        if string.len(word) >= max then
+        	local before = string.sub(word, 1, math.floor((max - 3) / 2))
+        	word = before .. "..."
+        end
 
-      item.menu = menu_icon[entry.source.name]
-      return item
-    end,
+        if
+            entry.completion_item.insertTextFormat == types.lsp.InsertTextFormat.Snippet
+            and string.sub(vim_item.abbr, -1, -1) == "~"
+        then
+          word = word .. "~"
+        end
+        vim_item.abbr = word
+
+        return vim_item
+      end,
+    }),
   },
   snippet = {
     expand = function(args)
       require("luasnip").lsp_expand(args.body)
     end,
   },
-
 })

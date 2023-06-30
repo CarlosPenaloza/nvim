@@ -21,6 +21,7 @@ source $HOME/.config/nvim/conf/confPluggins/colorizer.lua
 source $HOME/.config/nvim/conf/confPluggins/gitsigns.lua
 source $HOME/.config/nvim/conf/confPluggins/indent-blankline.lua
 source $HOME/.config/nvim/conf/confPluggins/treesitter.lua
+source $HOME/.config/nvim/conf/confPluggins/lspkind.lua
 
 " Barra superior e inferior
 source $HOME/.config/nvim/conf/confPluggins/bufferline.lua

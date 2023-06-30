@@ -21,6 +21,7 @@ Plug 'andymass/vim-matchup' " Colorer parentesis, llaves, etc.
 Plug 'anuvyklack/pretty-fold.nvim' " fold
 Plug 'anuvyklack/fold-preview.nvim' "Muestra lo que esta dentro del fold
 Plug 'anuvyklack/keymap-amend.nvim' "Plugin necesario para usar fold-preview
+Plug 'onsails/lspkind.nvim' " Plugin para atajos visuales
 
 " Barra superior e inferior
 Plug 'akinsho/bufferline.nvim'
@@ -54,5 +55,8 @@ Plug 'voldikss/vim-floaterm'
 " Busqueda de archivos
 Plug 'nvim-lua/plenary.nvim'
 Plug 'nvim-telescope/telescope.nvim', {'branch': '0.1.x'}
+
+" Kitty terminal
+Plug 'fladson/vim-kitty'
 
 call plug#end()
