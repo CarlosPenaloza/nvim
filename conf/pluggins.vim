@@ -56,7 +56,4 @@ Plug 'voldikss/vim-floaterm'
 Plug 'nvim-lua/plenary.nvim'
 Plug 'nvim-telescope/telescope.nvim', {'branch': '0.1.x'}
 
-" Kitty terminal
-Plug 'fladson/vim-kitty'
-
 call plug#end()
