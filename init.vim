@@ -36,3 +36,4 @@ source $HOME/.config/nvim/conf/confPluggins/floaterm.vim
 
 " Autocompletar
 source $HOME/.config/nvim/conf/confPluggins/lsp-zero.lua
+source $HOME/.config/nvim/conf/confPluggins/snippets.lua

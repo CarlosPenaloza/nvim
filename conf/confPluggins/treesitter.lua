@@ -12,7 +12,6 @@ require 'nvim-treesitter.configs'.setup {
     "lua",
     "markdown",
     "markdown_inline",
-    "meson",
     "python",
     "regex",
     "scss",
