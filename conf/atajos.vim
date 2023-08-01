@@ -1,4 +1,3 @@
-" EasyMotion
 " Tecla que iniciara los atajos, en este caso espacio.
 let mapleader = " "
 " nmap -> Comandos que ejecutaran estando en modo normal
@@ -6,7 +5,7 @@ let mapleader = " "
 
  "Generales
 nmap <Leader>w :w<CR>
-nmap <Leader>Q :q<CR>
+nmap <Leader>Q :q!<CR>
 nmap <Leader>W :wq<CR>
 
 " Tamaño Buffers

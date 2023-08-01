@@ -56,4 +56,7 @@ Plug 'voldikss/vim-floaterm'
 Plug 'nvim-lua/plenary.nvim'
 Plug 'nvim-telescope/telescope.nvim', {'branch': '0.1.x'}
 
+" Lenguajes
+Plug 'pmizio/typescript-tools.nvim'
+
 call plug#end()

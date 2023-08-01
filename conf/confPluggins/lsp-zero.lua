@@ -54,6 +54,7 @@ lsp.ensure_installed({
   'cssmodules_ls',
   'cssls',
   'cucumber_language_server',
+  'custom_elements_ls',
   'emmet_ls',
   'eslint',
   'html',
@@ -64,7 +65,7 @@ lsp.ensure_installed({
   'rust_analyzer',
   'tsserver',
   'vimls',
-  'vtsls'
+  -- 'vtsls'
 })
 
 mason.setup()
@@ -148,3 +149,6 @@ cmp.setup({
   mapping = mapping,
   snippet = snippet
 })
+
+-- servers configuration
+
