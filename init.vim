@@ -39,4 +39,4 @@ source $HOME/.config/nvim/conf/confPluggins/lsp-zero.lua
 source $HOME/.config/nvim/conf/confPluggins/snippets.lua
 
 " Lenguajes
-source $HOME/.config/nvim/conf/confPluggins/typescript-tools.lua
+" source $HOME/.config/nvim/conf/confPluggins/typescript-tools.lua

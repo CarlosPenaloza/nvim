@@ -1,17 +1,19 @@
-require("nvim-tree").setup {
+require("nvim-tree").setup { -- BEGIN_DEFAULT_OPTS
   auto_reload_on_write = true,
   disable_netrw = false,
   hijack_cursor = false,
   hijack_netrw = true,
   hijack_unnamed_buffer_when_opening = false,
-  sort_by = "name",
+  sort = {
+    sorter = "name",
+    folders_first = true,
+  },
   root_dirs = {},
   prefer_startup_root = false,
   sync_root_with_cwd = false,
   reload_on_bufenter = false,
   respect_buf_cwd = false,
   on_attach = "default",
-  remove_keymaps = false,
   select_prompts = false,
   view = {
     centralize_selection = false,
@@ -24,12 +26,6 @@ require("nvim-tree").setup {
     number = false,
     relativenumber = false,
     signcolumn = "yes",
-    mappings = {
-      custom_only = false,
-      list = {
-        -- user mappings go here
-      },
-    },
     float = {
       enable = false,
       quit_on_focus_loss = true,
@@ -135,6 +131,7 @@ require("nvim-tree").setup {
     },
   },
   filters = {
+    git_ignored = true,
     dotfiles = false,
     git_clean = false,
     no_buffer = false,
@@ -148,9 +145,9 @@ require("nvim-tree").setup {
   },
   git = {
     enable = true,
-    ignore = false,
     show_on_dirs = true,
     show_on_open_dirs = true,
+    disable_for_dirs = {},
     timeout = 400,
   },
   modified = {
@@ -179,7 +176,8 @@ require("nvim-tree").setup {
       },
     },
     open_file = {
-      quit_on_open = true,
+      quit_on_open = false,
+      eject = true,
       resize_window = true,
       window_picker = {
         enable = true,
@@ -211,6 +209,7 @@ require("nvim-tree").setup {
   },
   notify = {
     threshold = vim.log.levels.INFO,
+    absolute_path = true,
   },
   ui = {
     confirm = {
@@ -218,11 +217,7 @@ require("nvim-tree").setup {
       trash = true,
     },
   },
-  experimental = {
-    git = {
-      async = true,
-    },
-  },
+  experimental = {},
   log = {
     enable = false,
     truncate = false,
