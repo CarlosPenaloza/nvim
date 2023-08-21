@@ -69,5 +69,3 @@ cmp.setup({
   mapping = mapping,
   snippet = snippet
 })
-
--- servers configuration
