@@ -44,7 +44,8 @@ require("catppuccin").setup({
     treesitter_context = true,
     indent_blankline = {
       enabled = true,
-      colored_indent_levels = false,
+      scope_color = "", -- catppuccin color (eg. `lavender`) Default: text
+      colored_indent_levels = true,
     },
     native_lsp = {
       enabled = true,
