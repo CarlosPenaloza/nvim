@@ -43,19 +43,15 @@ lsp.ensure_installed({
   'bashls',
   'cssmodules_ls',
   'cssls',
-  'cucumber_language_server',
-  'custom_elements_ls',
   'emmet_ls',
   'eslint',
   'html',
   'jsonls',
   'lua_ls',
   'marksman',
-  'quick_lint_js',
   'rust_analyzer',
   'tsserver',
   'vimls',
-  -- 'vtsls'
 })
 
 mason.setup()
