@@ -1,6 +1,8 @@
+local filter = {
+  '^vbank/'
+}
 require('telescope').setup {
   defaults = {
-    layout_strategy = 'horizontal',
     layout_config = {
       bottom_pane = {
         height = 25,
@@ -35,6 +37,8 @@ require('telescope').setup {
     preview = {
       treesitter = true
     },
+    file_ignore_patterns = filter,
+    dynamic_preview_title = true,
   },
   pickers = {
   },
