@@ -1,37 +1,70 @@
-local lsp = require('lsp-zero').preset('recommended')
+local lsp = require("lsp-zero")
+local mason = require("mason")
 
-vim.opt.signcolumn = 'yes'
+-- format
+lsp.on_attach(function(client, bufnr)
+  lsp.default_keymaps({ buffer = bufnr })
+  local opts = { buffer = bufnr }
+  vim.keymap.set({ 'n', 'x' }, 'gq', function()
+    vim.lsp.buf.format({ async = false, timeout_ms = 10000 })
+  end, opts)
+end)
+
+lsp.preset({
+  name = 'recommended',
+  set_lsp_keymaps = true,
+  call_servers = 'local',
+  manage_nvim_cmp = {
+    set_sources = 'recommended',
+    set_basic_mappings = true,
+    set_extra_mappings = false,
+    use_luasnip = true,
+    set_format = true,
+    documentation_window = true,
+  },
+  suggest_lsp_servers = true,
+  setup_servers_on_start = true,
+  float_border = 'none',
+  configure_diagnostics = true,
+})
+
+lsp.set_sign_icons({
+  error = '✘',
+  warn = '▲',
+  hint = '⚑',
+  info = '»'
+})
+
+vim.diagnostic.config({
+  virtual_text = true,
+})
 
 lsp.ensure_installed({
+  'bashls',
   'cssmodules_ls',
   'cssls',
-  'ember',
   'emmet_ls',
   'eslint',
-  'glint',
   'html',
   'jsonls',
   'lua_ls',
   'marksman',
-  'remark_ls',
-  'stylelint_lsp',
+  'rust_analyzer',
   'tsserver',
   'vimls',
 })
 
-lsp.on_attach(function(client, bufnr)
-  local opts = { buffer = bufnr, remap = false }
+mason.setup()
 
-  vim.keymap.set("n", "gd", vim.lsp.buf.definition, opts)
-  vim.keymap.set("n", "gh", vim.lsp.buf.hover, opts)
-  vim.keymap.set("n", "<leader>vws", vim.lsp.buf.workspace_symbol, opts)
-  vim.keymap.set("n", "<leader>vd", vim.diagnostic.open_float, opts)
-  vim.keymap.set("n", "<leader>n", vim.diagnostic.goto_next, opts)
-  vim.keymap.set("n", "<leader>m", vim.diagnostic.goto_prev, opts)
-  vim.keymap.set("n", "<leader>vca", vim.lsp.buf.code_action, opts)
-  vim.keymap.set("n", "<leader>vrr", vim.lsp.buf.references, opts)
-  vim.keymap.set("n", "<leader>vrn", vim.lsp.buf.rename, opts)
-  vim.keymap.set("n", "<leader>sh", vim.lsp.buf.signature_help, opts)
-end)
+-- Fix Undefined global 'vim'
+lsp.configure("lua_ls", {
+  settings = {
+    Lua = {
+      diagnostics = {
+        globals = { "vim" },
+      },
+    },
+  },
+})
 
 lsp.setup()

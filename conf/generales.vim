@@ -1,9 +1,9 @@
-" Canal: HolaMundo - udemy
+syntax enable
 set number
 set relativenumber
+set cursorline
 set mouse=nv
 set numberwidth=1
-syntax enable
 set showcmd
 set ruler
 set encoding=utf-8
@@ -13,16 +13,16 @@ set expandtab
 set softtabstop=2
 set shiftwidth=2
 set laststatus=2
-set clipboard=unnamedplus
-
-" Canal: - Yt
+set signcolumn=yes
+set clipboard+=unnamedplus
 set nobackup
 set nowrap
 set noswapfile
 set smartindent
 set splitbelow
 set splitright
-
-" Otros
 set termguicolors
-set foldmethod=manual " zf(cierra), za(alterna) and space(abrev)
+set foldmethod=expr
+set foldexpr=nvim_treesitter#foldexpr()
+set tabstop=2
+set nofoldenable 
