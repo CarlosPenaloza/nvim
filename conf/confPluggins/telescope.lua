@@ -1,5 +1,6 @@
 local filter = {
-  '^vbank/'
+  '^vbank/',
+  '%.yml'
 }
 require('telescope').setup {
   defaults = {
