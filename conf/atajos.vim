@@ -5,7 +5,8 @@ let mapleader = " "
 
  "Generales
 nmap <Leader>w :w<CR>
-nmap <Leader>Q :q!<CR>
+nmap <Leader>Q :q<CR>
+nmap <C-Q> :q!<CR>
 nmap <Leader>W :wq<CR>
 
 " Tamaño Buffers
