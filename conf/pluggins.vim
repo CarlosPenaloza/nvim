@@ -2,6 +2,7 @@ call plug#begin('~/.vim/plugged')
 
 " Temas
 Plug 'catppuccin/nvim', { 'as': 'catppuccin' }
+Plug 'morhetz/gruvbox'
 
 " Arbol de archivos
 Plug 'nvim-tree/nvim-web-devicons' " optional
