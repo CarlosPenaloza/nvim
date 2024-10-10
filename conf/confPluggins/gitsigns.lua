@@ -36,9 +36,6 @@ require('gitsigns').setup {
     row = 0,
     col = 1
   },
-  yadm                         = {
-    enable = false
-  },
 }
 -- Actions
 vim.keymap.set('n', '<leader>hn', ':Gitsigns next_hunk<CR>')
