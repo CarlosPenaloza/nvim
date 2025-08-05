@@ -13,7 +13,8 @@ vim.g.coc_global_extensions = {
   'coc-snippets',     -- Soporte para snippets
   'coc-ultisnips',    -- Gestor de snippets
   'coc-lit-html',
-  'coc-eslint'
+  'coc-eslint',
+  'coc-prettier'
 }
 
 -- Having longer updatetime (default is 4000 ms = 4s) leads to noticeable
