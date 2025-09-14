@@ -26,8 +26,7 @@ ts_configs.setup({
   ensure_installed = {
     "bash", "comment", "css", "dockerfile", "gitignore", "html", "http",
     "javascript", "json", "lua", "markdown", "markdown_inline", "python",
-    "regex", "scss", "tsx", "typescript", "vim", "vimdoc", "yaml", "toml",
-    "go",
+    "regex", "scss", "tsx", "typescript", "vim", "vimdoc",
   },
   sync_install = false,
   auto_install = true,

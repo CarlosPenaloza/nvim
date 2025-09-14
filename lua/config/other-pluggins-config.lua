@@ -1,6 +1,3 @@
--- F8 para togglear Tagbar
-vim.keymap.set("n", "<F8>", ":TagbarToggle<CR>", { silent = true })
-
 -- Config de tmux-navigator
 vim.g.tmux_navigator_no_mappings = 1
 

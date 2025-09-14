@@ -20,7 +20,6 @@ return {
     end,
     keys = {
       { "-", "<cmd>Oil --float<cr>", desc = "Oil (float)" },
-      { "<leader>e", "<cmd>Oil<cr>", desc = "Oil" },
     },
   },
   { "refractalize/oil-git-status.nvim", lazy = true },

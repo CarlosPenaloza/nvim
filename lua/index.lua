@@ -1,12 +1,14 @@
 -- lua/index.lua
 
 -- ===== Settings base =====
-require('leader')
 pcall(require, 'options')
 
 -- ===== Tema por defecto (opcional) =====
 vim.cmd.colorscheme('gruvbox')
--- vim.cmd.colorscheme('catppuccin')
+vim.api.nvim_create_user_command("ThemeToggle", function()
+  local c = vim.g.colors_name
+  if c == "gruvbox" then vim.cmd.colorscheme("catppuccin") else vim.cmd.colorscheme("gruvbox") end
+end, {})
 
 -- ===== Cargar configs de plugins cuando lazy esté listo =====
 vim.api.nvim_create_autocmd('User', {

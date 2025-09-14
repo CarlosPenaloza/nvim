@@ -3,10 +3,7 @@
 -- ===== Leader keys (debe ir ANTES de cargar plugins) =====
 require('leader')
 
--- ===== Legacy rtp (si todavía lo usas) =====
-vim.opt.runtimepath:prepend("~/.vim/after")
 vim.g.python3_host_prog = "/usr/bin/python3"
-vim.opt.packpath = vim.o.runtimepath
 
 -- ===== Bootstrap lazy.nvim =====
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
