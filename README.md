@@ -99,19 +99,24 @@ Luego se cargan los plugins desde `lua/plugins/init.lua`.
 │   ├── index.lua
 │   ├── plugins/
 │   │   └── init.lua
+│   │   └── lsp.lua
+│   │   └── ui-productivity.lua
 │   └── config/
 │       ├── oil.lua
 │       ├── telescope.lua
 │       ├── treesitter.lua
 │       ├── lualine.lua
 │       ├── bufferline.lua
-│       ├── coc.lua
 │       ├── mini.lua
 │       ├── gitsigns.lua
 │       ├── oil-git.lua
 │       ├── oil-git-status.lua
 │       ├── other-pluggins-config.lua
-│       └── largefile.lua
+│       ├── largefile.lua
+│       ├── lsp.lua
+│       ├── lsp_ts.lua
+│       ├── cmp.lua
+│       ├── format.lua
 ```
 
 ### Comandos útiles
@@ -129,6 +134,34 @@ Luego se cargan los plugins desde `lua/plugins/init.lua`.
   ```vim
   :Lazy profile
   ```
+
+### LSP
+
+- **Instalar servidores** con Mason:
+  ```vim
+  :Mason
+  ```
+- **Ver estado LSP activo**:
+  ```vim
+  :LspInfo
+  ```
+- **Reiniciar LSP**:
+  ```vim
+  :LspRestart
+  ```
+
+### Formateo (con conform.nvim)
+
+- `:Format` → buffer completo (prettierd)
+- `:FormatLine` → línea actual (Prettier CLI)
+- `:FormatSel` → selección visual o `:10,20FormatSel`
+- `:FormatPrettier` → buffer con Prettier CLI
+- `:PrettierdStop` / `:PrettierdRestart` → controlar el daemon
+
+Atajos:
+
+- `<leader>f` (normal) → formatea **línea actual**
+- `<leader>f` (visual) → formatea **selección**
 
 ---
 
@@ -199,8 +232,14 @@ sudo systemctl enable bluetooth.service
 - Comprueba que `nvim --version` muestre `+clipboard`
 - Si ves `-clipboard`, instala `neovim-gtk` o `neovim-qt` o recompila con soporte
 
-### coc.nvim no arranca
+### ESLint no arranca
 
-- Ejecuta `:CocUpdate`
-- Revisa que Node esté instalado (`node --version`)
-- Usa `:CocInfo` para logs detallados
+- Asegúrate de tener `eslint` instalado en el proyecto:
+  ```bash
+  npm i -D eslint eslint-config-prettier
+  ```
+- Si usas TS + Lit:
+  ```bash
+  npm i -D @typescript-eslint/parser @typescript-eslint/eslint-plugin eslint-plugin-lit eslint-plugin-lit-a11y
+  ```
+- Revisa `:LspInfo` para confirmar que ESLint LSP está activo.

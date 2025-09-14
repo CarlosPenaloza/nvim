@@ -44,9 +44,6 @@ return {
   { "akinsho/bufferline.nvim", event = "VeryLazy", dependencies = "nvim-tree/nvim-web-devicons" },
   { "nvim-lualine/lualine.nvim", event = "VeryLazy" },
 
-  -- ── Autocompletado (CoC) ─────────────────
-  { "neoclide/coc.nvim", branch = "release", event = "VimEnter" },
-
   -- ── Telescope ───────────────────────────
   {
     "nvim-telescope/telescope.nvim",
