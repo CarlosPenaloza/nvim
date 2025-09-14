@@ -32,8 +32,14 @@ require('mini.pairs').setup()
 -- 4) Mover texto
 require('mini.move').setup({
   mappings = {
-    left = '<M-h>', right = '<M-l>', down = '<M-j>', up = '<M-k>',
-    line_left = '<M-h>', line_right = '<M-l>', line_down = '<M-j>', line_up = '<M-k>',
+    left = '<M-h>',
+    right = '<M-l>',
+    down = '<M-j>',
+    up = '<M-k>',
+    line_left = '<M-h>',
+    line_right = '<M-l>',
+    line_down = '<M-j>',
+    line_up = '<M-k>',
   },
 })
 
@@ -67,25 +73,21 @@ vim.api.nvim_create_autocmd('FileType', {
 })
 
 -- 9) Hipatterns (reemplaza nvim-highlight-colors)
-require('mini.hipatterns').setup({
-  highlighters = {
-    hex_color = require('mini.hipatterns').gen_highlighter.hex_color(),
-  },
-})
+require('config.miniConfig.hipatterns')
 
 -- 10) mini.ai — Textobjects inteligentes
-do
-  local ai = require('mini.ai')
-  ai.setup({
-    n_lines = 500,
-    custom_textobjects = {
-      f = ai.gen_spec.treesitter({ a = '@function.outer', i = '@function.inner' }),
-      c = ai.gen_spec.treesitter({ a = '@class.outer', i = '@class.inner' }),
-      o = ai.gen_spec.treesitter({ a = '@loop.outer', i = '@loop.inner' }),
-      p = ai.gen_spec.treesitter({ a = '@parameter.outer', i = '@parameter.inner' }),
-    },
-  })
-end
+-- do
+--   local ai = require('mini.ai')
+--   ai.setup({
+--     n_lines = 500,
+--     custom_textobjects = {
+--       f = ai.gen_spec.treesitter({ a = '@function.outer', i = '@function.inner' }),
+--       c = ai.gen_spec.treesitter({ a = '@class.outer', i = '@class.inner' }),
+--       o = ai.gen_spec.treesitter({ a = '@loop.outer', i = '@loop.inner' }),
+--       p = ai.gen_spec.treesitter({ a = '@parameter.outer', i = '@parameter.inner' }),
+--     },
+--   })
+-- end
 
 -- 11) Transformaciones de mayúsculas/minúsculas
 -- Normal mode: palabra actual
