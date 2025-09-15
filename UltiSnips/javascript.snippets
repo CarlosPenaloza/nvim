@@ -1,7 +1,30 @@
-snippet lit-render
+snippet litRender
 
 html\`
   ${1:Content goes here}
 \`;
+
+endsnippet
+
+snippet litProp
+
+/**
+ * $3 
+ */
+${1: Prop name}: {
+  type: $2,
+},
+
+endsnippet
+
+
+snippet litFunc
+
+/**
+ * $4 
+ */
+${1: Prop name}($2) {
+  $3
+};
 
 endsnippet
