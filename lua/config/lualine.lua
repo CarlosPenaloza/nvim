@@ -276,7 +276,6 @@ require("lualine").setup({
 			winbar = {},
 		},
 		always_divide_middle = false,
-		refresh = { statusline = 200, tabline = 200, winbar = 200 },
 	},
 
 	-- ===== Statusline =====

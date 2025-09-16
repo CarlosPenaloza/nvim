@@ -44,6 +44,7 @@ vim.api.nvim_create_autocmd("User", {
 		-- Formateo (conform.nvim)
 		pcall(require, "config.format")
 
+		-- Diagnosticos (trouble.nvim)
 		pcall(require, "config.diagnostics")
 	end,
 })

@@ -52,15 +52,7 @@ vim.keymap.set('n', 'gA', function() require('mini.align').align_to_char({}) end
 require('mini.splitjoin').setup({ mappings = { toggle = 'gS' } })
 
 -- 7) Quitar espacios al final
-require('mini.trailspace').setup()
-vim.api.nvim_create_autocmd('BufWritePre', {
-  callback = function()
-    local ft = vim.bo.filetype
-    if ft ~= 'markdown' and ft ~= 'txt' then
-      require('mini.trailspace').trim()
-    end
-  end,
-})
+require('config.miniConfig.trailspace')
 
 -- 8) Indentscope (reemplaza indent-blankline)
 require('mini.indentscope').setup({
