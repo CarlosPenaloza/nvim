@@ -1,27 +1,39 @@
 -- lua/config/lsp_ts.lua
-local caps = require("cmp_nvim_lsp").default_capabilities()
+-- TS/JS LSP: vtsls ▸ typescript-tools.nvim ▸ tsserver (fallback)
+-- Instala vtsls con Mason si falta, configura React/Lit, sin formateo (Prettier/Conform)
 
--- ===== Helpers para archivos grandes =====
-local function largefile_on_attach_guard(client, bufnr)
-	if vim.b[bufnr] and vim.b[bufnr].large_file then
-		-- Apaga semántica y diagnósticos, y corta el cliente en este buffer
+-- ========= Capacidades (cmp) =========
+local caps = (function()
+	local ok, cmp = pcall(require, "cmp_nvim_lsp")
+	return ok and cmp.default_capabilities() or vim.lsp.protocol.make_client_capabilities()
+end)()
+
+-- ========= Guard archivos grandes =========
+local function large_guard(client, bufnr)
+	if vim.b.large_file then
 		client.server_capabilities.semanticTokensProvider = nil
+		client.server_capabilities.documentFormattingProvider = false
 		vim.diagnostic.disable(bufnr)
 		pcall(function()
 			client.stop()
 		end)
-		return true -- indica que ya manejamos el caso "grande"
+		return true
 	end
 	return false
 end
 
-local function ts_on_attach(client, bufnr)
-	if largefile_on_attach_guard(client, bufnr) then
+-- ========= on_attach común =========
+local function on_attach_ts(client, bufnr)
+	if large_guard(client, bufnr) then
 		return
 	end
 
-	local map = function(mode, lhs, rhs)
-		vim.keymap.set(mode, lhs, rhs, { silent = true, buffer = bufnr })
+	-- Formateo por Prettier/Conform
+	client.server_capabilities.documentFormattingProvider = false
+	client.server_capabilities.documentRangeFormattingProvider = false
+
+	local map = function(m, lhs, rhs)
+		vim.keymap.set(m, lhs, rhs, { silent = true, buffer = bufnr })
 	end
 	map("n", "K", vim.lsp.buf.hover)
 	map("n", "gd", vim.lsp.buf.definition)
@@ -31,40 +43,154 @@ local function ts_on_attach(client, bufnr)
 	map("n", "]g", vim.diagnostic.goto_next)
 	map("n", "[g", vim.diagnostic.goto_prev)
 	map("n", "<leader>rn", vim.lsp.buf.rename)
-	-- Nota: no mapeamos <leader>f aquí (lo llevas en config/format.lua)
+
+	if vim.lsp.inlay_hint then
+		pcall(vim.lsp.inlay_hint, bufnr, true)
+	end
 end
 
--- ===== Opción A: typescript-tools.nvim (recomendada) =====
-local ok, ts = pcall(require, "typescript-tools")
-if ok then
-	ts.setup({
-		capabilities = caps,
-		on_attach = ts_on_attach,
-		settings = {
-			-- Plugin global para templates de Lit
-			tsserver_plugins = {
-				"typescript-lit-html-plugin",
-			},
-			-- Opcional: fuerza la ruta de tsserver global si no hay local
-			tsserver_path = vim.fn.exepath("tsserver"),
-			-- (Opcional) deshabilitar formateo de tsserver si prefieres sólo Prettier:
-			-- separate_diagnostic_server = true,
-			-- publish_diagnostic_on = "insert_leave",
-		},
-	})
+-- ========= Preferencias comunes (React/Lit) =========
+local FILE_PREFS = {
+	-- React/JSX moderno
+	jsxPreference = "react-jsx",
+	preferTypeOnlyAutoImports = true,
+	includeCompletionsForModuleExports = true,
+	includeCompletionsWithSnippetText = true,
+	includeCompletionsWithInsertTextCompletions = true,
+	-- Inlay hints
+	includeInlayParameterNameHints = "all",
+	includeInlayParameterNameHintsWhenArgumentMatchesName = false,
+	includeInlayFunctionParameterTypeHints = true,
+	includeInlayVariableTypeHints = true,
+	includeInlayPropertyDeclarationTypeHints = true,
+	includeInlayFunctionLikeReturnTypeHints = true,
+	includeInlayEnumMemberValueHints = true,
+}
+
+-- ========= Utilidades Mason (instalar desde este archivo) =========
+local function mason_pkg(name)
+	local ok, mr = pcall(require, "mason-registry")
+	if not ok then
+		return nil
+	end
+	if not mr.is_installed and mr.refresh then
+		-- mason-registry API antigua: refrescamos para seguridad
+		mr.refresh()
+	end
+	local ok_pkg, pkg = pcall(mr.get_package, name)
+	return ok_pkg and pkg or nil
+end
+
+local function ensure_mason(pkgs)
+	local ok, mr = pcall(require, "mason-registry")
+	if not ok then
+		return
+	end
+	mr.refresh(function()
+		for _, name in ipairs(pkgs) do
+			local ok_pkg, pkg = pcall(mr.get_package, name)
+			if ok_pkg and not pkg:is_installed() then
+				pkg:install()
+				pkg:on("install:success", function()
+					vim.schedule(function()
+						vim.notify(
+							("[Mason] %s instalado. Reinicia Neovim para activarlo."):format(name),
+							vim.log.levels.INFO
+						)
+					end)
+				end)
+			end
+		end
+	end)
+end
+
+-- Pedimos estos paquetes; el esencial es vtsls. TLS es opcional por si luego quisieras usarlo.
+ensure_mason({ "vtsls", "typescript-language-server" })
+
+-- ========= Setup con orden preferido =========
+local ok_lspc, lspconfig = pcall(require, "lspconfig")
+if not ok_lspc then
 	return
 end
 
--- ===== Opción B: Fallback con lspconfig.tsserver =====
-local lspconfig = require("lspconfig")
-lspconfig.tsserver.setup({
-	capabilities = caps,
-	on_attach = ts_on_attach,
-	-- Para tsserver "puro", el plugin va en init_options.plugins
-	init_options = {
-		hostInfo = "neovim",
-		plugins = {
-			{ name = "typescript-lit-html-plugin" },
+local function has_exec(bin)
+	return vim.fn.executable(bin) == 1
+end
+
+local function setup_vtsls()
+	lspconfig.vtsls.setup({
+		capabilities = caps,
+		on_attach = on_attach_ts,
+		single_file_support = true,
+		settings = {
+			vtsls = {
+				tsserver = {
+					-- Plugins TS globales (se activan si existen en node_modules del proyecto)
+					globalPlugins = {
+						{ name = "typescript-lit-html-plugin" }, -- LitElement (opcional)
+					},
+				},
+			},
+			typescript = { preferences = FILE_PREFS, format = { semicolons = "insert" } },
+			javascript = { preferences = FILE_PREFS, format = { semicolons = "insert" } },
 		},
-	},
-})
+	})
+end
+
+local function setup_typescript_tools()
+	local ok_tts, tts = pcall(require, "typescript-tools")
+	if not ok_tts then
+		return false
+	end
+	tts.setup({
+		capabilities = caps,
+		on_attach = on_attach_ts,
+		single_file_support = true,
+		settings = {
+			tsserver_plugins = { "typescript-lit-html-plugin" }, -- Lit templates
+			tsserver_file_preferences = FILE_PREFS,
+			tsserver_format_options = {
+				allowIncompleteCompletions = true,
+				allowRenameOfImportPath = true,
+			},
+			separate_diagnostic_server = true,
+			publish_diagnostic_on = "insert_leave",
+			-- tsserver_max_memory = 4096, -- descomenta si monorepos gigantes
+		},
+	})
+	return true
+end
+
+local function setup_tsserver()
+	lspconfig.tsserver.setup({
+		capabilities = caps,
+		on_attach = on_attach_ts,
+		init_options = {
+			hostInfo = "neovim",
+			preferences = FILE_PREFS,
+			plugins = { { name = "typescript-lit-html-plugin" } },
+		},
+	})
+	vim.schedule(function()
+		vim.notify(
+			"[tsserver] usado como fallback. Cuando Mason termine de instalar vtsls, reinicia Neovim.",
+			vim.log.levels.WARN
+		)
+	end)
+end
+
+-- ¿Está vtsls disponible ya? (por Mason o PATH)
+local vtsls_pkg = mason_pkg("vtsls")
+local vtsls_installed = (vtsls_pkg and vtsls_pkg:is_installed()) or has_exec("vtsls")
+
+if vtsls_installed and lspconfig.vtsls then
+	-- 1) vtsls (preferido)
+	setup_vtsls()
+else
+	-- 2) typescript-tools.nvim (si el plugin está presente)
+	local ok_tts = setup_typescript_tools()
+	if not ok_tts then
+		-- 3) Fallback final: tsserver
+		setup_tsserver()
+	end
+end

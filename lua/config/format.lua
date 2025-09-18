@@ -1,196 +1,273 @@
 -- lua/config/format.lua
+-- Minimal, robusto y sin auto-on-save. Atajos:
+--   Normal: <leader>f  → formatea línea actual
+--   Visual: <leader>f  → formatea selección (v / V / Ctrl-v)
 
--- Carga segura
-local ok, conform = pcall(require, "conform")
-if not ok then
-	vim.notify("conform.nvim no está instalado/cargado", vim.log.levels.ERROR)
-	return
+-- ────────────────────────────────────────────────────────────────────────
+-- Notificaciones
+-- ────────────────────────────────────────────────────────────────────────
+local function info(msg)
+	vim.notify(msg, vim.log.levels.INFO)
+end
+local function warn(msg)
+	vim.notify(msg, vim.log.levels.WARN)
+end
+local function err(msg)
+	vim.notify(msg, vim.log.levels.ERROR)
 end
 
-local util = require("conform.util")
+-- ────────────────────────────────────────────────────────────────────────
+-- Filetypes por formateador
+-- ────────────────────────────────────────────────────────────────────────
+local FT_PRETTIER = {
+	javascript = true,
+	typescript = true,
+	javascriptreact = true,
+	typescriptreact = true,
+	jsx = true,
+	tsx = true,
+	html = true,
+	css = true,
+	scss = true,
+	less = true,
+	json = true,
+	jsonc = true,
+	markdown = true,
+	mdx = true,
+	yaml = true,
+	yml = true,
+	graphql = true,
+	astro = true,
+	svelte = true,
+	vue = true,
+}
 
--- ==== Rutas/entorno ====
-local home = vim.fn.expand("~")
-local prettier_global = home .. "/.prettierrc.json"
+local function ft_kind()
+	local ft = vim.bo.filetype
+	if FT_PRETTIER[ft] then
+		return "prettier"
+	end
+	if ft == "lua" then
+		return "stylua"
+	end
+	if ft == "vim" then
+		return "vimindent"
+	end
+	return nil
+end
 
--- ==== Configuración base de Conform ====
-conform.setup({
-	formatters_by_ft = {
-		-- JS/TS: solo Prettier para formateo; eslint_d queda para lint
-		javascript = { "prettierd", "prettier" },
-		typescript = { "prettierd", "prettier" },
-		javascriptreact = { "prettierd", "prettier" },
-		typescriptreact = { "prettierd", "prettier" },
-		json = { "jq" },
-		css = { "prettierd", "prettier" },
-		html = { "prettierd", "prettier" },
-		lua = { "stylua" },
-		python = { "ruff_format", "black" },
-		sh = { "shfmt" },
-		markdown = { "prettierd", "prettier" },
-	},
-	formatters = {
-		-- prettierd: usa tu config global si el repo no trae una
-		prettierd = {
-			env = { PRETTIERD_DEFAULT_CONFIG = prettier_global },
-			cwd = util.root_file({ "package.json", ".prettierrc", ".prettierrc.json", ".git" }),
-		},
-		-- Prettier CLI: aseguramos detection de parser según filepath
-		prettier = {
-			prepend_args = { "--stdin-filepath", "$FILENAME" },
-		},
-	},
-	notify_on_error = true,
-})
+-- ────────────────────────────────────────────────────────────────────────
+-- Resolución de ejecutables / comandos
+-- ────────────────────────────────────────────────────────────────────────
+local function current_dir()
+	local name = vim.api.nvim_buf_get_name(0)
+	if name == "" then
+		return vim.loop.cwd()
+	end
+	return vim.fs.dirname(name)
+end
 
--- ==== Helpers de rango y mensajes ====
-local function line_end_col(bufnr, row0)
-	local line = vim.api.nvim_buf_get_lines(bufnr, row0, row0 + 1, false)[1] or ""
-	return #line
+local function find_upwards(target, dir)
+	local found = vim.fs.find(target, { path = dir, upward = true, type = "file" })
+	return (found and found[1]) or nil
+end
+
+-- Prettier: local (node_modules) > global; sin npx
+local function resolve_prettier()
+	local dir = current_dir()
+	local local_bin = find_upwards("node_modules/.bin/prettier", dir)
+	if local_bin and vim.fn.filereadable(local_bin) == 1 then
+		return vim.fn.shellescape(local_bin)
+	end
+	if vim.fn.executable("prettier") == 1 then
+		return "prettier"
+	end
+	return nil
+end
+
+local function prettier_cmdline()
+	local bin = resolve_prettier()
+	if not bin then
+		err(
+			"No se encontró Prettier (ni local ni global).\n"
+				.. "Instala una de estas opciones:\n"
+				.. "  • Local (recomendado): npm i -D prettier\n"
+				.. "  • Global: npm i -g prettier"
+		)
+		return nil
+	end
+	local fname = vim.api.nvim_buf_get_name(0)
+	if fname == "" or fname == nil then
+		local ft = (vim.bo.filetype or "txt"):gsub("%s+", "")
+		fname = "stdin." .. (ft ~= "" and ft or "txt")
+	end
+	-- --ignore-unknown evita errores verbosos en tipos raros
+	-- --log-level silent suprime mensajes
+	return string.format("%s --log-level silent --ignore-unknown --stdin-filepath %s", bin, vim.fn.shellescape(fname))
+end
+
+-- StyLua: global; usa stdin y detecta config con --stdin-filepath
+local function resolve_stylua()
+	if vim.fn.executable("stylua") == 1 then
+		return "stylua"
+	end
+	return nil
+end
+
+local function stylua_cmdline()
+	local bin = resolve_stylua()
+	if not bin then
+		err(
+			"No se encontró StyLua en PATH. Instálalo, por ejemplo:\n"
+				.. "  • cargo install stylua\n"
+				.. "  • brew install stylua  (macOS)\n"
+				.. "  • scoop install stylua (Windows)"
+		)
+		return nil
+	end
+	local fname = vim.api.nvim_buf_get_name(0)
+	if fname == "" or fname == nil then
+		fname = "stdin.lua"
+	end
+	-- Lee de stdin con '-' y usa el filepath para buscar stylua.toml
+	return string.format("%s --color Never --stdin-filepath %s -", bin, vim.fn.shellescape(fname))
+end
+
+-- ────────────────────────────────────────────────────────────────────────
+-- Helpers selección / línea
+-- ────────────────────────────────────────────────────────────────────────
+local function current_line_range()
+	local l = vim.api.nvim_win_get_cursor(0)[1]
+	return l, l
+end
+
+local function visual_or_count_range(opts)
+	if opts and opts.range == 2 then
+		return opts.line1, opts.line2
+	else
+		local l1 = vim.fn.getpos("'<")[2]
+		local l2 = vim.fn.getpos("'>")[2]
+		if not l1 or not l2 then
+			return nil, nil
+		end
+		if l2 < l1 then
+			l1, l2 = l2, l1
+		end
+		return l1, l2
+	end
+end
+
+local function is_lines_all_empty(l1, l2)
+	local lines = vim.api.nvim_buf_get_lines(0, l1 - 1, l2, false)
+	if #lines == 0 then
+		return true
+	end
+	for _, ln in ipairs(lines) do
+		if ln ~= "" then
+			return false
+		end
+	end
+	return true
+end
+
+-- ────────────────────────────────────────────────────────────────────────
+-- Aplicadores por backend
+-- ────────────────────────────────────────────────────────────────────────
+local function apply_prettier(l1, l2)
+	local cmd = prettier_cmdline()
+	if not cmd then
+		return false
+	end
+	vim.cmd(string.format([[%d,%d! %s]], l1, l2, cmd))
+	return true
+end
+
+local function apply_stylua(l1, l2)
+	local cmd = stylua_cmdline()
+	if not cmd then
+		return false
+	end
+	vim.cmd(string.format([[%d,%d! %s]], l1, l2, cmd))
+	return true
+end
+
+local function apply_vim_indent(l1, l2)
+	-- Reindentación nativa por línea (no reemplaza con errores)
+	vim.cmd(string.format([[%d,%dnormal! =]], l1, l2))
+	return true
+end
+
+local function apply_for_range(l1, l2)
+	local kind = ft_kind()
+	if not kind then
+		warn("Formato no aplicado: filetype no soportado (" .. (vim.bo.filetype or "desconocido") .. ")")
+		return false
+	end
+	if is_lines_all_empty(l1, l2) then
+		warn("⚠ Selección vacía")
+		return false
+	end
+	if kind == "prettier" then
+		return apply_prettier(l1, l2)
+	end
+	if kind == "stylua" then
+		return apply_stylua(l1, l2)
+	end
+	if kind == "vimindent" then
+		return apply_vim_indent(l1, l2)
+	end
+	return false
+end
+
+-- ────────────────────────────────────────────────────────────────────────
+-- Acciones públicas
+-- ────────────────────────────────────────────────────────────────────────
+local function format_line()
+	local l1, l2 = current_line_range()
+	if apply_for_range(l1, l2) then
+		info("✔ Línea formateada")
+	end
+end
+
+local function format_selection(opts)
+	local l1, l2 = visual_or_count_range(opts)
+	if not l1 then
+		warn("⚠ No hay selección")
+		return
+	end
+	if apply_for_range(l1, l2) then
+		info(string.format("✔ Selección formateada (%d-%d)", l1, l2))
+	end
 end
 
 local function format_buffer()
-	conform.format({ async = true, lsp_fallback = true }, function(err)
-		if err then
-			vim.notify("✖ Falló formateo del buffer (ver :ConformInfo)", vim.log.levels.ERROR)
-		else
-			vim.notify("✔ Buffer formateado", vim.log.levels.INFO)
-		end
-	end)
-end
-
--- Fuerza Prettier CLI para rangos (prettierd no soporta rango)
-local function format_line()
-	local bufnr = 0
-	local row0 = vim.api.nvim_win_get_cursor(0)[1] - 1
-	local endc = line_end_col(bufnr, row0)
-	conform.format({
-		async = true,
-		lsp_fallback = true,
-		formatters = { "prettier" },
-		range = { start = { row0, 0 }, ["end"] = { row0, endc } },
-	}, function(err)
-		if err then
-			vim.notify("✖ Falló formateo de línea (ver :ConformInfo)", vim.log.levels.ERROR)
-		else
-			vim.notify("✔ Línea formateada", vim.log.levels.INFO)
-		end
-	end)
-end
-
-local function format_selection_by_marks()
-	local start_pos = vim.api.nvim_buf_get_mark(0, "<")
-	local end_pos = vim.api.nvim_buf_get_mark(0, ">")
-	if not start_pos or not end_pos then
-		vim.notify("⚠ No hay selección activa", vim.log.levels.WARN)
+	local total = vim.api.nvim_buf_line_count(0)
+	if total == 1 and (vim.api.nvim_buf_get_lines(0, 0, 1, false)[1] or "") == "" then
+		warn("⚠ Buffer vacío")
 		return
 	end
-	local srow, scol = start_pos[1], start_pos[2]
-	local erow, ecol = end_pos[1], end_pos[2]
-	if (erow < srow) or (erow == srow and ecol < scol) then
-		srow, erow = erow, srow
-		scol, ecol = ecol, scol
+	if apply_for_range(1, total) then
+		info("✔ Buffer formateado")
 	end
-	local endc = line_end_col(0, erow)
-	if ecol > endc then
-		ecol = endc
-	end
-
-	conform.format({
-		async = true,
-		lsp_fallback = true,
-		formatters = { "prettier" },
-		range = { start = { srow, scol }, ["end"] = { erow, ecol } },
-	}, function(err)
-		if err then
-			vim.notify("✖ Falló formateo de selección (ver :ConformInfo)", vim.log.levels.ERROR)
-		else
-			vim.notify("✔ Selección formateada", vim.log.levels.INFO)
-		end
-	end)
 end
 
-local function format_selection_by_range(line1, line2)
-	local srow = (line1 - 1)
-	local erow = (line2 - 1)
-	local ecol = line_end_col(0, erow)
-	conform.format({
-		async = true,
-		lsp_fallback = true,
-		formatters = { "prettier" },
-		range = { start = { srow, 0 }, ["end"] = { erow, ecol } },
-	}, function(err)
-		if err then
-			vim.notify(
-				("✖ Falló formateo del rango %d-%d (ver :ConformInfo)"):format(line1, line2),
-				vim.log.levels.ERROR
-			)
-		else
-			vim.notify(("✔ Rango formateado (%d-%d)"):format(line1, line2), vim.log.levels.INFO)
-		end
-	end)
-end
-
--- ==== Comandos ====
-vim.api.nvim_create_user_command("Format", function()
-	format_buffer()
-end, {})
+-- ────────────────────────────────────────────────────────────────────────
+-- Comandos
+-- ────────────────────────────────────────────────────────────────────────
 vim.api.nvim_create_user_command("FormatLine", function()
 	format_line()
 end, {})
 vim.api.nvim_create_user_command("FormatSel", function(opts)
-	if opts.count ~= -1 then
-		format_selection_by_range(opts.line1, opts.line2)
-	else
-		format_selection_by_marks()
-	end
+	format_selection(opts)
 end, { range = true })
-
--- Forzar usar Prettier CLI (saltando el daemon) en el buffer actual
-vim.api.nvim_create_user_command("FormatPrettier", function()
-	conform.format({
-		async = true,
-		lsp_fallback = true,
-		formatters = { "prettier" },
-	}, function(err)
-		if err then
-			vim.notify("✖ Falló con Prettier CLI (ver :ConformInfo)", vim.log.levels.ERROR)
-		else
-			vim.notify("✔ Formateado con Prettier CLI", vim.log.levels.INFO)
-		end
-	end)
+vim.api.nvim_create_user_command("Format", function()
+	format_buffer()
 end, {})
 
--- Detener/reniciar el daemon de prettierd (por si se “pega”)
-local function prettierd_stop(cb)
-	vim.system({ "prettierd", "stop" }, { text = true }, function(res)
-		if res.code == 0 then
-			vim.schedule(function()
-				vim.notify("⏹  prettierd detenido", vim.log.levels.INFO)
-			end)
-		else
-			vim.schedule(function()
-				vim.notify("⚠ No se pudo detener prettierd", vim.log.levels.WARN)
-			end)
-		end
-		if cb then
-			cb()
-		end
-	end)
-end
-
-vim.api.nvim_create_user_command("PrettierdStop", function()
-	prettierd_stop()
-end, {})
-
-vim.api.nvim_create_user_command("PrettierdRestart", function()
-	prettierd_stop(function()
-		vim.defer_fn(function()
-			vim.notify("🔁 prettierd reiniciado (se iniciará al próximo format)", vim.log.levels.INFO)
-		end, 100)
-	end)
-end, {})
-
--- ==== Mappings ====
+-- ────────────────────────────────────────────────────────────────────────
+-- Atajos (funciona con v / V / Ctrl-v)
+-- ────────────────────────────────────────────────────────────────────────
 vim.keymap.set("n", "<leader>f", format_line, { desc = "Format current line", silent = true })
-vim.keymap.set("x", "<leader>f", format_selection_by_marks, { desc = "Format selection", silent = true })
+
+pcall(vim.keymap.del, "x", "<leader>f")
+vim.keymap.set("x", "<leader>f", [[:<C-u>'<,'>FormatSel<CR>]], { desc = "Format selection", silent = true })
