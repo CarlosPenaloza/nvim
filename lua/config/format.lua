@@ -1,273 +1,132 @@
--- lua/config/format.lua
--- Minimal, robusto y sin auto-on-save. Atajos:
---   Normal: <leader>f  → formatea línea actual
---   Visual: <leader>f  → formatea selección (v / V / Ctrl-v)
+-- ?????????????????????????????????????????????????????????????????????????????
+-- Comandos: :Format (buffer), :FormatLine (l�nea actual), :FormatSelection (selecci�n)
+-- Pega este bloque al final del archivo. No modifica tu l�gica previa.
+-- ?????????????????????????????????????????????????????????????????????????????
 
--- ────────────────────────────────────────────────────────────────────────
--- Notificaciones
--- ────────────────────────────────────────────────────────────────────────
-local function info(msg)
-	vim.notify(msg, vim.log.levels.INFO)
-end
-local function warn(msg)
-	vim.notify(msg, vim.log.levels.WARN)
-end
-local function err(msg)
-	vim.notify(msg, vim.log.levels.ERROR)
+-- helpers locales m�nimos (no tocan resto del archivo)
+local function _has_lsp_method(bufnr, method)
+  for _, c in ipairs(vim.lsp.get_clients({ bufnr = bufnr })) do
+    if c.supports_method and c:supports_method(method) then return true end
+  end
+  return false
 end
 
--- ────────────────────────────────────────────────────────────────────────
--- Filetypes por formateador
--- ────────────────────────────────────────────────────────────────────────
-local FT_PRETTIER = {
-	javascript = true,
-	typescript = true,
-	javascriptreact = true,
-	typescriptreact = true,
-	jsx = true,
-	tsx = true,
-	html = true,
-	css = true,
-	scss = true,
-	less = true,
-	json = true,
-	jsonc = true,
-	markdown = true,
-	mdx = true,
-	yaml = true,
-	yml = true,
-	graphql = true,
-	astro = true,
-	svelte = true,
-	vue = true,
-}
-
-local function ft_kind()
-	local ft = vim.bo.filetype
-	if FT_PRETTIER[ft] then
-		return "prettier"
-	end
-	if ft == "lua" then
-		return "stylua"
-	end
-	if ft == "vim" then
-		return "vimindent"
-	end
-	return nil
+local function _line_end_col0(bufnr, lnum1)
+  local text = vim.api.nvim_buf_get_lines(bufnr, lnum1 - 1, lnum1, false)[1] or ""
+  return #text -- col 0-index al final de la l�nea
 end
 
--- ────────────────────────────────────────────────────────────────────────
--- Resolución de ejecutables / comandos
--- ────────────────────────────────────────────────────────────────────────
-local function current_dir()
-	local name = vim.api.nvim_buf_get_name(0)
-	if name == "" then
-		return vim.loop.cwd()
-	end
-	return vim.fs.dirname(name)
+-- Construye rango para Conform: filas 1-index, cols 0-index
+local function _mk_conform_range(bufnr, s_row1, s_col1, e_row1, e_col1)
+  if (e_row1 < s_row1) or (e_row1 == s_row1 and (e_col1 or 1) < (s_col1 or 1)) then
+    s_row1, e_row1, s_col1, e_col1 = e_row1, s_row1, e_col1, s_col1
+  end
+  local s_col0 = (s_col1 and math.max(s_col1 - 1, 0)) or 0
+  local e_col0 = (e_col1 and math.max(e_col1 - 1, 0)) or _line_end_col0(bufnr, e_row1)
+  return { start = { s_row1, s_col0 }, ["end"] = { e_row1, e_col0 } }
 end
 
-local function find_upwards(target, dir)
-	local found = vim.fs.find(target, { path = dir, upward = true, type = "file" })
-	return (found and found[1]) or nil
+-- Intenta formatear con Conform; si hay rango, NO usar lsp_fallback
+local function _conform_format(opts)
+  local ok, conform = pcall(require, 'conform')
+  if not ok then return false end
+  local cfg = {
+    bufnr = opts.bufnr,
+    timeout_ms = opts.timeout_ms or 3000,
+    quiet = true,
+    lsp_fallback = opts.range and false or true,
+    range = opts.range,
+  }
+  local ok_call, err = pcall(function()
+    conform.format(cfg, function(cb_err)
+      if cb_err then
+        vim.notify('Formato (Conform) fall�: ' .. tostring(cb_err), vim.log.levels.WARN)
+      end
+    end)
+  end)
+  if not ok_call then
+    vim.notify('Formato (Conform) lanz� excepci�n: ' .. tostring(err), vim.log.levels.WARN)
+  end
+  return true
 end
 
--- Prettier: local (node_modules) > global; sin npx
-local function resolve_prettier()
-	local dir = current_dir()
-	local local_bin = find_upwards("node_modules/.bin/prettier", dir)
-	if local_bin and vim.fn.filereadable(local_bin) == 1 then
-		return vim.fn.shellescape(local_bin)
-	end
-	if vim.fn.executable("prettier") == 1 then
-		return "prettier"
-	end
-	return nil
+-- Fallback LSP (respeta rango si el servidor lo soporta)
+local function _lsp_format(opts)
+  local bufnr = opts.bufnr
+  if opts.range then
+    if not _has_lsp_method(bufnr, 'textDocument/rangeFormatting') then
+      vim.notify('Ning�n LSP soporta rangeFormatting en este buffer.', vim.log.levels.INFO)
+      return
+    end
+    local r = opts.range
+    pcall(vim.lsp.buf.format, {
+      bufnr = bufnr,
+      async = false,
+      timeout_ms = opts.timeout_ms or 3000,
+      range = {
+        start = { line = r.start[1] - 1, character = r.start[2] }, -- LSP: 0/0
+        ["end"] = { line = r["end"][1] - 1, character = r["end"][2] },
+      },
+    })
+  else
+    if not _has_lsp_method(bufnr, 'textDocument/formatting') then
+      vim.notify('Ning�n LSP con formatting disponible.', vim.log.levels.INFO)
+      return
+    end
+    pcall(vim.lsp.buf.format, {
+      bufnr = bufnr,
+      async = false,
+      timeout_ms = opts.timeout_ms or 3000,
+    })
+  end
 end
 
-local function prettier_cmdline()
-	local bin = resolve_prettier()
-	if not bin then
-		err(
-			"No se encontró Prettier (ni local ni global).\n"
-				.. "Instala una de estas opciones:\n"
-				.. "  • Local (recomendado): npm i -D prettier\n"
-				.. "  • Global: npm i -g prettier"
-		)
-		return nil
-	end
-	local fname = vim.api.nvim_buf_get_name(0)
-	if fname == "" or fname == nil then
-		local ft = (vim.bo.filetype or "txt"):gsub("%s+", "")
-		fname = "stdin." .. (ft ~= "" and ft or "txt")
-	end
-	-- --ignore-unknown evita errores verbosos en tipos raros
-	-- --log-level silent suprime mensajes
-	return string.format("%s --log-level silent --ignore-unknown --stdin-filepath %s", bin, vim.fn.shellescape(fname))
+-- Wrapper com�n
+local function _do_format(opts)
+  local bufnr = opts.bufnr or vim.api.nvim_get_current_buf()
+  if _conform_format({ bufnr = bufnr, range = opts.range, timeout_ms = opts.timeout_ms }) then
+    return
+  end
+  _lsp_format({ bufnr = bufnr, range = opts.range, timeout_ms = opts.timeout_ms })
 end
 
--- StyLua: global; usa stdin y detecta config con --stdin-filepath
-local function resolve_stylua()
-	if vim.fn.executable("stylua") == 1 then
-		return "stylua"
-	end
-	return nil
-end
+-- Elimina comandos previos si existen para evitar errores al redefinir
+pcall(vim.api.nvim_del_user_command, 'Format')
+pcall(vim.api.nvim_del_user_command, 'FormatLine')
+pcall(vim.api.nvim_del_user_command, 'FormatSelection')
 
-local function stylua_cmdline()
-	local bin = resolve_stylua()
-	if not bin then
-		err(
-			"No se encontró StyLua en PATH. Instálalo, por ejemplo:\n"
-				.. "  • cargo install stylua\n"
-				.. "  • brew install stylua  (macOS)\n"
-				.. "  • scoop install stylua (Windows)"
-		)
-		return nil
-	end
-	local fname = vim.api.nvim_buf_get_name(0)
-	if fname == "" or fname == nil then
-		fname = "stdin.lua"
-	end
-	-- Lee de stdin con '-' y usa el filepath para buscar stylua.toml
-	return string.format("%s --color Never --stdin-filepath %s -", bin, vim.fn.shellescape(fname))
-end
+-- :Format ? buffer completo
+vim.api.nvim_create_user_command('Format', function()
+  _do_format({})
+end, { desc = 'Formatear buffer completo (Conform -> LSP)' })
 
--- ────────────────────────────────────────────────────────────────────────
--- Helpers selección / línea
--- ────────────────────────────────────────────────────────────────────────
-local function current_line_range()
-	local l = vim.api.nvim_win_get_cursor(0)[1]
-	return l, l
-end
+-- :FormatLine ? s�lo la l�nea actual (modo Normal)
+vim.api.nvim_create_user_command('FormatLine', function()
+  local bufnr = vim.api.nvim_get_current_buf()
+  local l = vim.api.nvim_win_get_cursor(0)[1]
+  local range = _mk_conform_range(bufnr, l, 1, l, _line_end_col0(bufnr, l) + 1)
+  _do_format({ range = range, bufnr = bufnr })
+end, { desc = 'Formatear l�nea actual' })
 
-local function visual_or_count_range(opts)
-	if opts and opts.range == 2 then
-		return opts.line1, opts.line2
-	else
-		local l1 = vim.fn.getpos("'<")[2]
-		local l2 = vim.fn.getpos("'>")[2]
-		if not l1 or not l2 then
-			return nil, nil
-		end
-		if l2 < l1 then
-			l1, l2 = l2, l1
-		end
-		return l1, l2
-	end
-end
+-- :FormatSelection ? respeta selecci�n visual exacta (o l�neas completas si estabas en Visual Line)
+vim.api.nvim_create_user_command('FormatSelection', function()
+  local bufnr = vim.api.nvim_get_current_buf()
+  local sp, ep = vim.fn.getpos("'<"), vim.fn.getpos("'>")
+  if sp[2] == 0 or ep[2] == 0 then
+    vim.notify('No hay selecci�n visual activa', vim.log.levels.INFO)
+    return
+  end
+  local s_row1, s_col1 = sp[2], sp[3]
+  local e_row1, e_col1 = ep[2], ep[3]
+  if vim.fn.mode() == 'V' then
+    -- En Visual Line, cubre l�neas completas
+    s_col1 = 1
+    e_col1 = _line_end_col0(bufnr, e_row1) + 1
+  end
+  local range = _mk_conform_range(bufnr, s_row1, s_col1, e_row1, e_col1)
+  _do_format({ range = range, bufnr = bufnr })
+end, { desc = 'Formatear selecci�n visual' })
 
-local function is_lines_all_empty(l1, l2)
-	local lines = vim.api.nvim_buf_get_lines(0, l1 - 1, l2, false)
-	if #lines == 0 then
-		return true
-	end
-	for _, ln in ipairs(lines) do
-		if ln ~= "" then
-			return false
-		end
-	end
-	return true
-end
-
--- ────────────────────────────────────────────────────────────────────────
--- Aplicadores por backend
--- ────────────────────────────────────────────────────────────────────────
-local function apply_prettier(l1, l2)
-	local cmd = prettier_cmdline()
-	if not cmd then
-		return false
-	end
-	vim.cmd(string.format([[%d,%d! %s]], l1, l2, cmd))
-	return true
-end
-
-local function apply_stylua(l1, l2)
-	local cmd = stylua_cmdline()
-	if not cmd then
-		return false
-	end
-	vim.cmd(string.format([[%d,%d! %s]], l1, l2, cmd))
-	return true
-end
-
-local function apply_vim_indent(l1, l2)
-	-- Reindentación nativa por línea (no reemplaza con errores)
-	vim.cmd(string.format([[%d,%dnormal! =]], l1, l2))
-	return true
-end
-
-local function apply_for_range(l1, l2)
-	local kind = ft_kind()
-	if not kind then
-		warn("Formato no aplicado: filetype no soportado (" .. (vim.bo.filetype or "desconocido") .. ")")
-		return false
-	end
-	if is_lines_all_empty(l1, l2) then
-		warn("⚠ Selección vacía")
-		return false
-	end
-	if kind == "prettier" then
-		return apply_prettier(l1, l2)
-	end
-	if kind == "stylua" then
-		return apply_stylua(l1, l2)
-	end
-	if kind == "vimindent" then
-		return apply_vim_indent(l1, l2)
-	end
-	return false
-end
-
--- ────────────────────────────────────────────────────────────────────────
--- Acciones públicas
--- ────────────────────────────────────────────────────────────────────────
-local function format_line()
-	local l1, l2 = current_line_range()
-	if apply_for_range(l1, l2) then
-		info("✔ Línea formateada")
-	end
-end
-
-local function format_selection(opts)
-	local l1, l2 = visual_or_count_range(opts)
-	if not l1 then
-		warn("⚠ No hay selección")
-		return
-	end
-	if apply_for_range(l1, l2) then
-		info(string.format("✔ Selección formateada (%d-%d)", l1, l2))
-	end
-end
-
-local function format_buffer()
-	local total = vim.api.nvim_buf_line_count(0)
-	if total == 1 and (vim.api.nvim_buf_get_lines(0, 0, 1, false)[1] or "") == "" then
-		warn("⚠ Buffer vacío")
-		return
-	end
-	if apply_for_range(1, total) then
-		info("✔ Buffer formateado")
-	end
-end
-
--- ────────────────────────────────────────────────────────────────────────
--- Comandos
--- ────────────────────────────────────────────────────────────────────────
-vim.api.nvim_create_user_command("FormatLine", function()
-	format_line()
-end, {})
-vim.api.nvim_create_user_command("FormatSel", function(opts)
-	format_selection(opts)
-end, { range = true })
-vim.api.nvim_create_user_command("Format", function()
-	format_buffer()
-end, {})
-
--- ────────────────────────────────────────────────────────────────────────
--- Atajos (funciona con v / V / Ctrl-v)
--- ────────────────────────────────────────────────────────────────────────
-vim.keymap.set("n", "<leader>f", format_line, { desc = "Format current line", silent = true })
-
-pcall(vim.keymap.del, "x", "<leader>f")
-vim.keymap.set("x", "<leader>f", [[:<C-u>'<,'>FormatSel<CR>]], { desc = "Format selection", silent = true })
+vim.keymap.set('n', '<leader>f', '<cmd>Format<cr>', { desc = 'Format buffer' })
+vim.keymap.set('n', 'gQ', '<cmd>FormatLine<cr>', { desc = 'Format current line' })
+vim.keymap.set('x', '<leader>f', '<esc><cmd>FormatSelection<cr>', { desc = 'Format selection' })

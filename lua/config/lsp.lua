@@ -1,226 +1,98 @@
--- lua/config/lsp.lua
--- LSP compacto, eficiente y ‚Äúfail-safe‚Äù
+-- =============================
+--  lua/config/lsp.lua (V3)
+-- =============================
+-- Requiere Neovim >= 0.11 y nvim-lspconfig reciente.
+-- Migra del viejo `require('lspconfig')[srv].setup{}` a `vim.lsp.config()` + `vim.lsp.enable()`.
 
--- ===== Requires seguros =====
-local ok_lsp, lspconfig = pcall(require, "lspconfig")
-if not ok_lsp then
-	return
-end
+-- Protege requerimientos opcionales
+local ok_cmp, cmp_lsp = pcall(require, 'cmp_nvim_lsp')
 
-local util = require("lspconfig.util")
-
--- ===== Mason =====
-local ok_mason, mason = pcall(require, "mason")
-if ok_mason then
-	mason.setup()
-end
-
-local ok_mlsp, mason_lspconfig = pcall(require, "mason-lspconfig")
-if ok_mlsp then
-	mason_lspconfig.setup({
-		ensure_installed = {
-			"eslint",
-			"html",
-			"cssls",
-			"emmet_ls",
-			"jsonls",
-			"lua_ls",
-			"bashls",
-			"pyright",
-			"marksman",
-			-- tsserver se maneja aparte (config/lsp_ts.lua)
-		},
-		automatic_installation = true,
-	})
-end
-
-local ok_mti, mti = pcall(require, "mason-tool-installer")
-if ok_mti then
-	mti.setup({
-		ensure_installed = {
-			-- Formatters / linters
-			"prettierd",
-			"prettier",
-			"eslint_d",
-			"jq",
-			"stylua",
-			"shfmt",
-			"black",
-			"ruff",
-		},
-		auto_update = false,
-		run_on_start = true,
-	})
-end
-
--- ===== Capacidades (cmp) =====
-local caps = (function()
-	local ok_cmp, cmp_caps = pcall(require, "cmp_nvim_lsp")
-	if ok_cmp then
-		return cmp_caps.default_capabilities()
-	end
-	return vim.lsp.protocol.make_client_capabilities()
-end)()
-
--- ===== Flags comunes =====
-local LSP_FLAGS = { debounce_text_changes = 150 }
-
--- ===== Guard archivos grandes =====
-local function on_init_largefile_stop(client)
-	if vim.b.large_file then
-		pcall(function()
-			client.stop()
-		end)
-		return false
-	end
-	return true
-end
-
--- ===== on_attach m√≠nimo y veloz =====
-local function on_attach(client, bufnr)
-	if vim.b.large_file then
-		client.server_capabilities.semanticTokensProvider = nil
-		vim.diagnostic.disable(bufnr)
-		pcall(function()
-			client.stop()
-		end)
-		return
-	end
-
-	local map = function(mode, lhs, rhs)
-		vim.keymap.set(mode, lhs, rhs, { silent = true, buffer = bufnr })
-	end
-
-	map("n", "K", vim.lsp.buf.hover)
-	map("n", "gd", vim.lsp.buf.definition)
-	map("n", "gi", vim.lsp.buf.implementation)
-	map("n", "gr", vim.lsp.buf.references)
-	map("n", "gy", vim.lsp.buf.type_definition)
-	map("n", "]g", vim.diagnostic.goto_next)
-	map("n", "[g", vim.diagnostic.goto_prev)
-	map("n", "<leader>rn", vim.lsp.buf.rename)
-end
-
--- ===== Diagn√≥sticos globales =====
+-- 1) Ajustes DIAGNÓSTICOS globales
 vim.diagnostic.config({
-	virtual_text = { spacing = 2, prefix = "‚óè" },
-	float = { border = "rounded" },
-	severity_sort = true,
+  underline = true,
+  virtual_text = { spacing = 2, prefix = '?' },
+  signs = true,
+  severity_sort = true,
+  update_in_insert = false,
 })
 
--- ===== ESLint: iniciar solo si existe (local o global real) =====
-local npm_root_g_cached ---@type string|nil
-local function npm_root_g()
-	if npm_root_g_cached ~= nil then
-		return npm_root_g_cached
-	end
-	local ok, out = pcall(vim.fn.system, "npm root -g")
-	out = ok and (out or ""):gsub("%s+$", "") or ""
-	npm_root_g_cached = (out ~= "" and vim.fn.isdirectory(out) == 1) and out or nil
-	return npm_root_g_cached
+-- 2) Signos (puedes ajustar a tu paleta)
+local signs = { Error = '?', Warn = '?', Hint = '?', Info = '?' }
+for type, icon in pairs(signs) do
+  local hl = 'DiagnosticSign' .. type
+  vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = '' })
 end
 
-local function has_local_eslint(root)
-	if not root or root == "" then
-		return false
-	end
-	return vim.fn.isdirectory(util.path.join(root, "node_modules", "eslint")) == 1
-end
-
-local function has_global_eslint()
-	local g = npm_root_g()
-	return g and (vim.fn.isdirectory(util.path.join(g, "eslint")) == 1) or false
-end
-
-local function eslint_project_root(fname)
-	return util.root_pattern(
-		"eslint.config.js",
-		"eslint.config.cjs",
-		".eslintrc",
-		".eslintrc.js",
-		".eslintrc.cjs",
-		".eslintrc.json",
-		"package.json"
-	)(fname) or util.find_git_ancestor(fname)
-end
-
-lspconfig.eslint.setup({
-	capabilities = caps,
-	-- Si no hay eslint (local NI global) => root_dir = nil => NO inicia (sin warnings)
-	root_dir = function(fname)
-		local root = eslint_project_root(fname)
-		if not root then
-			return nil
-		end
-		if has_local_eslint(root) or has_global_eslint() then
-			return root
-		end
-		return nil
-	end,
-	single_file_support = false, -- no adjuntar en archivos sueltos
-	flags = LSP_FLAGS,
-	on_init = on_init_largefile_stop,
-	on_attach = on_attach,
-	settings = {
-		workingDirectories = { mode = "auto" },
-		codeAction = {
-			disableRuleComment = { enable = true },
-			showDocumentation = { enable = true },
-		},
-		nodePath = (function()
-			local g = npm_root_g()
-			if g and vim.fn.isdirectory(util.path.join(g, "eslint")) == 1 then
-				return g
-			end
-			return nil
-		end)(),
-	},
+-- 3) Capacidades por defecto para TODOS los servidores
+local default_caps = ok_cmp and cmp_lsp.default_capabilities() or {}
+vim.lsp.config('*', {
+  capabilities = default_caps,
+  inlay_hints = { enabled = true }, -- campo usado por algunos wrappers; real enable abajo en LspAttach
 })
 
--- ===== Resto de servidores =====
-lspconfig.html.setup({ capabilities = caps, on_init = on_init_largefile_stop, on_attach = on_attach, flags = LSP_FLAGS })
-lspconfig.cssls.setup({
-	capabilities = caps,
-	on_init = on_init_largefile_stop,
-	on_attach = on_attach,
-	flags = LSP_FLAGS,
-})
-lspconfig.emmet_ls.setup({
-	capabilities = caps,
-	on_init = on_init_largefile_stop,
-	on_attach = on_attach,
-	flags = LSP_FLAGS,
-})
-lspconfig.jsonls.setup({
-	capabilities = caps,
-	on_init = on_init_largefile_stop,
-	on_attach = on_attach,
-	flags = LSP_FLAGS,
-})
-lspconfig.lua_ls.setup({
-	capabilities = caps,
-	on_init = on_init_largefile_stop,
-	on_attach = on_attach,
-	flags = LSP_FLAGS,
-	settings = { Lua = { diagnostics = { globals = { "vim" } } } },
-})
-lspconfig.bashls.setup({
-	capabilities = caps,
-	on_init = on_init_largefile_stop,
-	on_attach = on_attach,
-	flags = LSP_FLAGS,
-})
-lspconfig.pyright.setup({
-	capabilities = caps,
-	on_init = on_init_largefile_stop,
-	on_attach = on_attach,
-	flags = LSP_FLAGS,
-})
-lspconfig.marksman.setup({
-	capabilities = caps,
-	on_init = on_init_largefile_stop,
-	on_attach = on_attach,
-	flags = LSP_FLAGS,
+-- 4) Keymaps y extras vía LspAttach (recomendado en v3)
+vim.api.nvim_create_autocmd('LspAttach', {
+  group = vim.api.nvim_create_augroup('lsp-attach-keymaps', { clear = true }),
+  callback = function(args)
+    local buf = args.buf
+    local client = vim.lsp.get_client_by_id(args.data.client_id)
+
+    -- Inlay hints nativas (Nvim >= 0.10)
+    pcall(vim.lsp.inlay_hint.enable, buf, true)
+
+    local map = function(mode, lhs, rhs, desc)
+      vim.keymap.set(mode, lhs, rhs, { buffer = buf, desc = desc })
+    end
+
+    map('n', 'gd', vim.lsp.buf.definition, 'LSP: Go to definition')
+    map('n', 'gD', vim.lsp.buf.declaration, 'LSP: Go to declaration')
+    map('n', 'gi', vim.lsp.buf.implementation, 'LSP: Go to implementation')
+    map('n', 'gr', vim.lsp.buf.references, 'LSP: References')
+    map('n', 'K', vim.lsp.buf.hover, 'LSP: Hover')
+    map('n', '<leader>rn', vim.lsp.buf.rename, 'LSP: Rename symbol')
+    map('n', '<leader>ca', vim.lsp.buf.code_action, 'LSP: Code action')
+    map('n', '<leader>f', function()
+      vim.lsp.buf.format({ async = false })
+    end, 'LSP: Format')
+    map('n', '[d', vim.diagnostic.goto_prev, 'LSP: Prev diagnostic')
+    map('n', ']d', vim.diagnostic.goto_next, 'LSP: Next diagnostic')
+
+    -- Desactiva formateo si prefieres un formateador externo
+    -- if client and client.name ~= 'lua_ls' then
+    --   client.server_capabilities.documentFormattingProvider = false
+    --   client.server_capabilities.documentRangeFormattingProvider = false
+    -- end
+  end,
 })
 
--- Fin
+-- 5) Servidores BASE (edita a tu gusto)
+-- Nota: `vim.lsp.config()` combina tu config con la de nvim-lspconfig si existe.
+
+-- Lua
+vim.lsp.config('lua_ls', {
+  settings = {
+    Lua = {
+      diagnostics = { globals = { 'vim' } },
+      workspace = { checkThirdParty = false },
+      telemetry = { enable = false },
+    },
+  },
+})
+
+-- JSON
+vim.lsp.config('jsonls', {})
+
+-- CSS
+vim.lsp.config('cssls', {})
+
+-- HTML
+vim.lsp.config('html', {})
+
+-- Bash
+vim.lsp.config('bashls', {})
+
+-- (Opcional) Pyright
+vim.lsp.config('pyright', {})
+
+-- 6) Activación automática según filetypes y root_dir
+vim.lsp.enable({ 'lua_ls', 'jsonls', 'cssls', 'html', 'bashls', 'pyright' })
