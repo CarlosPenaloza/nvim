@@ -10,21 +10,7 @@ require('mini.comment').setup({
 })
 
 -- 2) Surround estándar con prefijo `gs`
-require('mini.surround').setup({
-  mappings = {
-    add = 'gsa',
-    delete = 'gsd',
-    replace = 'gsc',
-    find = 'gsf',
-    find_left = 'gsF',
-    highlight = 'gsh',
-    update_n_lines = 'gsn',
-  },
-})
-vim.keymap.set('x', 'gS', function() require('mini.surround').add('visual') end,
-  { desc = 'Add surround (visual)' })
-vim.keymap.set('n', 'gss', function() require('mini.surround').add('line') end,
-  { desc = 'Add surround to line' })
+require('config.miniConfig.surround')
 
 -- 3) Autopairs
 require('mini.pairs').setup()
