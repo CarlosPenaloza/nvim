@@ -25,7 +25,7 @@ return {
 	-- 2) trouble (solo declaración, config en config/diagnostics.lua)
 	{
 		"folke/trouble.nvim",
-		branch = "v3",
+		branch = "main",
 		dependencies = { "nvim-tree/nvim-web-devicons" },
 		event = "VeryLazy",
 	},
