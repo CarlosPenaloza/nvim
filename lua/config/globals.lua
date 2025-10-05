@@ -25,7 +25,9 @@ local prettier_file = home .. "/.prettierrc.json"
 local prettier_content = [[
 {
   "singleQuote": true,
-  "trailingComma": "all"
+  "trailingComma": "all",
+  "printWidth": 150,
+  "plugins": ["prettier-plugin-lit"]
 }
 ]]
 ensure_file(prettier_file, prettier_content)
