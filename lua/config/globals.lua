@@ -26,8 +26,7 @@ local prettier_content = [[
 {
   "singleQuote": true,
   "trailingComma": "all",
-  "printWidth": 150,
-  "plugins": ["prettier-plugin-lit"]
+  "printWidth": 150
 }
 ]]
 ensure_file(prettier_file, prettier_content)
