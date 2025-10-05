@@ -20,7 +20,6 @@ vim.opt.rtp:prepend(lazypath)
 -- ===== Cargar specs de plugins (dos “imports”: generales y LSP) =====
 require("lazy").setup({
   { import = "plugins" },     -- tus temas, oil, treesitter, telescope, etc.
-  { import = "plugins.lsp" }, -- SOLO plugins de LSP/cmp/format (nuevo archivo)
 }, {
   ui = { border = "rounded" },
   change_detection = { notify = false },
