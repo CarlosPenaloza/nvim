@@ -1,132 +1,251 @@
--- ?????????????????????????????????????????????????????????????????????????????
--- Comandos: :Format (buffer), :FormatLine (línea actual), :FormatSelection (selección)
--- Pega este bloque al final del archivo. No modifica tu lógica previa.
--- ?????????????????????????????????????????????????????????????????????????????
+-- =====================================================================
+--  lua/config/format.lua
+-- =====================================================================
 
--- helpers locales mínimos (no tocan resto del archivo)
+-- -------- Helpers b√°sicos --------
 local function _has_lsp_method(bufnr, method)
-  for _, c in ipairs(vim.lsp.get_clients({ bufnr = bufnr })) do
-    if c.supports_method and c:supports_method(method) then return true end
-  end
-  return false
+	for _, c in ipairs(vim.lsp.get_clients({ bufnr = bufnr })) do
+		if c.supports_method and c:supports_method(method) then
+			return true
+		end
+	end
+	return false
 end
 
-local function _line_end_col0(bufnr, lnum1)
-  local text = vim.api.nvim_buf_get_lines(bufnr, lnum1 - 1, lnum1, false)[1] or ""
-  return #text -- col 0-index al final de la línea
+local function _line_len(bufnr, lnum1)
+	local line = vim.api.nvim_buf_get_lines(bufnr, lnum1 - 1, lnum1, false)[1] or ""
+	return #line
 end
 
--- Construye rango para Conform: filas 1-index, cols 0-index
-local function _mk_conform_range(bufnr, s_row1, s_col1, e_row1, e_col1)
-  if (e_row1 < s_row1) or (e_row1 == s_row1 and (e_col1 or 1) < (s_col1 or 1)) then
-    s_row1, e_row1, s_col1, e_col1 = e_row1, s_row1, e_col1, s_col1
-  end
-  local s_col0 = (s_col1 and math.max(s_col1 - 1, 0)) or 0
-  local e_col0 = (e_col1 and math.max(e_col1 - 1, 0)) or _line_end_col0(bufnr, e_row1)
-  return { start = { s_row1, s_col0 }, ["end"] = { e_row1, e_col0 } }
+local function _mk_range_linewise(bufnr, s_row1, e_row1)
+	if e_row1 < s_row1 then
+		s_row1, e_row1 = e_row1, s_row1
+	end
+	return {
+		start = { s_row1, 0 }, -- 1-based row, 0-based col
+		["end"] = { e_row1, _line_len(bufnr, e_row1) }, -- hasta fin de l√≠nea
+	}
 end
 
--- Intenta formatear con Conform; si hay rango, NO usar lsp_fallback
-local function _conform_format(opts)
-  local ok, conform = pcall(require, 'conform')
-  if not ok then return false end
-  local cfg = {
-    bufnr = opts.bufnr,
-    timeout_ms = opts.timeout_ms or 3000,
-    quiet = true,
-    lsp_fallback = opts.range and false or true,
-    range = opts.range,
-  }
-  local ok_call, err = pcall(function()
-    conform.format(cfg, function(cb_err)
-      if cb_err then
-        vim.notify('Formato (Conform) falló: ' .. tostring(cb_err), vim.log.levels.WARN)
-      end
-    end)
-  end)
-  if not ok_call then
-    vim.notify('Formato (Conform) lanzó excepción: ' .. tostring(err), vim.log.levels.WARN)
-  end
-  return true
+-- Reindenta l√≠neas con indentexpr / Treesitter (sin mover el cursor)
+local function _reindent_lines(bufnr, s_row1, e_row1)
+	local view = vim.fn.winsaveview()
+	vim.api.nvim_buf_call(bufnr, function()
+		vim.cmd(string.format("%d,%dnormal! ==", s_row1, e_row1))
+	end)
+	pcall(vim.fn.winrestview, view)
 end
 
--- Fallback LSP (respeta rango si el servidor lo soporta)
-local function _lsp_format(opts)
-  local bufnr = opts.bufnr
-  if opts.range then
-    if not _has_lsp_method(bufnr, 'textDocument/rangeFormatting') then
-      vim.notify('Ningún LSP soporta rangeFormatting en este buffer.', vim.log.levels.INFO)
-      return
-    end
-    local r = opts.range
-    pcall(vim.lsp.buf.format, {
-      bufnr = bufnr,
-      async = false,
-      timeout_ms = opts.timeout_ms or 3000,
-      range = {
-        start = { line = r.start[1] - 1, character = r.start[2] }, -- LSP: 0/0
-        ["end"] = { line = r["end"][1] - 1, character = r["end"][2] },
-      },
-    })
-  else
-    if not _has_lsp_method(bufnr, 'textDocument/formatting') then
-      vim.notify('Ningún LSP con formatting disponible.', vim.log.levels.INFO)
-      return
-    end
-    pcall(vim.lsp.buf.format, {
-      bufnr = bufnr,
-      async = false,
-      timeout_ms = opts.timeout_ms or 3000,
-    })
-  end
+-- -------- Backend: Conform ‚Üí fallback LSP --------
+local function _format_range(bufnr, range)
+	local ok_conform, conform = pcall(require, "conform")
+	if ok_conform then
+		local ok_call, err = pcall(function()
+			conform.format({
+				bufnr = bufnr,
+				timeout_ms = 4000,
+				quiet = true,
+				lsp_fallback = false,
+				range = range,
+			}, function(cb_err)
+				if cb_err then
+					vim.notify("Formato (Conform) fall√≥: " .. tostring(cb_err), vim.log.levels.WARN)
+					if _has_lsp_method(bufnr, "textDocument/rangeFormatting") then
+						vim.lsp.buf.format({
+							bufnr = bufnr,
+							async = false,
+							timeout_ms = 3000,
+							range = {
+								start = { line = range.start[1] - 1, character = range.start[2] },
+								["end"] = { line = range["end"][1] - 1, character = range["end"][2] },
+							},
+						})
+					end
+				end
+			end)
+		end)
+		if ok_call then
+			return
+		end
+		vim.notify("Conform lanz√≥ excepci√≥n: " .. tostring(err), vim.log.levels.WARN)
+	end
+
+	-- LSP directo si no hay Conform
+	if _has_lsp_method(bufnr, "textDocument/rangeFormatting") then
+		vim.lsp.buf.format({
+			bufnr = bufnr,
+			async = false,
+			timeout_ms = 3000,
+			range = {
+				start = { line = range.start[1] - 1, character = range.start[2] },
+				["end"] = { line = range["end"][1] - 1, character = range["end"][2] },
+			},
+		})
+	else
+		vim.notify("No hay Conform ni LSP con rangeFormatting.", vim.log.levels.INFO)
+	end
 end
 
--- Wrapper común
-local function _do_format(opts)
-  local bufnr = opts.bufnr or vim.api.nvim_get_current_buf()
-  if _conform_format({ bufnr = bufnr, range = opts.range, timeout_ms = opts.timeout_ms }) then
-    return
-  end
-  _lsp_format({ bufnr = bufnr, range = opts.range, timeout_ms = opts.timeout_ms })
+local function _format_full(bufnr)
+	local ok_conform, conform = pcall(require, "conform")
+	if ok_conform then
+		local ok_call, err = pcall(function()
+			conform.format({
+				bufnr = bufnr,
+				timeout_ms = 5000,
+				quiet = true,
+				lsp_fallback = true,
+			})
+		end)
+		if ok_call then
+			return
+		end
+		vim.notify("Conform lanz√≥ excepci√≥n: " .. tostring(err), vim.log.levels.WARN)
+	end
+
+	if _has_lsp_method(bufnr, "textDocument/formatting") then
+		vim.lsp.buf.format({ bufnr = bufnr, async = false, timeout_ms = 4000 })
+	else
+		vim.notify("No hay Conform ni LSP con formatting.", vim.log.levels.INFO)
+	end
 end
 
--- Elimina comandos previos si existen para evitar errores al redefinir
-pcall(vim.api.nvim_del_user_command, 'Format')
-pcall(vim.api.nvim_del_user_command, 'FormatLine')
-pcall(vim.api.nvim_del_user_command, 'FormatSelection')
+-- -------- Treesitter: calcula bloque (todo bajo pcall) --------
+local function _ts_block_range_or_nil(bufnr, s_row1, e_row1)
+	local ok_ts, _ = pcall(require, "vim.treesitter")
+	if not ok_ts or type(vim.treesitter.get_node) ~= "function" then
+		return nil
+	end
 
--- :Format ? buffer completo
-vim.api.nvim_create_user_command('Format', function()
-  _do_format({})
-end, { desc = 'Formatear buffer completo (Conform -> LSP)' })
+	local mid_row0 = math.floor(((s_row1 - 1) + (e_row1 - 1)) / 2)
+	local ok_node, node = pcall(vim.treesitter.get_node, { bufnr = bufnr, pos = { mid_row0, 0 } })
+	if not ok_node or not node then
+		return nil
+	end
 
--- :FormatLine ? sólo la línea actual (modo Normal)
-vim.api.nvim_create_user_command('FormatLine', function()
-  local bufnr = vim.api.nvim_get_current_buf()
-  local l = vim.api.nvim_win_get_cursor(0)[1]
-  local range = _mk_conform_range(bufnr, l, 1, l, _line_end_col0(bufnr, l) + 1)
-  _do_format({ range = range, bufnr = bufnr })
-end, { desc = 'Formatear línea actual' })
+	local ft = vim.bo[bufnr].filetype
+	local preferred = {
+		javascript = {
+			"if_statement",
+			"for_statement",
+			"while_statement",
+			"switch_statement",
+			"function_declaration",
+			"method_definition",
+			"arrow_function",
+			"class_declaration",
+			"jsx_element",
+			"jsx_fragment",
+			"statement_block",
+		},
+		typescript = {
+			"if_statement",
+			"for_statement",
+			"while_statement",
+			"switch_statement",
+			"function_declaration",
+			"method_definition",
+			"arrow_function",
+			"class_declaration",
+			"statement_block",
+		},
+		javascriptreact = {
+			"if_statement",
+			"for_statement",
+			"while_statement",
+			"switch_statement",
+			"function_declaration",
+			"method_definition",
+			"arrow_function",
+			"class_declaration",
+			"jsx_element",
+			"jsx_fragment",
+			"statement_block",
+		},
+		typescriptreact = {
+			"if_statement",
+			"for_statement",
+			"while_statement",
+			"switch_statement",
+			"function_declaration",
+			"method_definition",
+			"arrow_function",
+			"class_declaration",
+			"jsx_element",
+			"jsx_fragment",
+			"statement_block",
+		},
+		html = { "element" },
+		css = { "rule_set", "block", "stylesheet" },
+		scss = { "rule_set", "block", "stylesheet" },
+		_default = { "block", "compound_statement", "statement_block" },
+	}
+	local target = preferred[ft] or preferred._default
 
--- :FormatSelection ? respeta selección visual exacta (o líneas completas si estabas en Visual Line)
-vim.api.nvim_create_user_command('FormatSelection', function()
-  local bufnr = vim.api.nvim_get_current_buf()
-  local sp, ep = vim.fn.getpos("'<"), vim.fn.getpos("'>")
-  if sp[2] == 0 or ep[2] == 0 then
-    vim.notify('No hay selección visual activa', vim.log.levels.INFO)
-    return
-  end
-  local s_row1, s_col1 = sp[2], sp[3]
-  local e_row1, e_col1 = ep[2], ep[3]
-  if vim.fn.mode() == 'V' then
-    -- En Visual Line, cubre líneas completas
-    s_col1 = 1
-    e_col1 = _line_end_col0(bufnr, e_row1) + 1
-  end
-  local range = _mk_conform_range(bufnr, s_row1, s_col1, e_row1, e_col1)
-  _do_format({ range = range, bufnr = bufnr })
-end, { desc = 'Formatear selección visual' })
+	local function in_list(t, list)
+		for _, x in ipairs(list) do
+			if t == x then
+				return true
+			end
+		end
+		return false
+	end
 
-vim.keymap.set('n', '<leader>f', '<cmd>Format<cr>', { desc = 'Format buffer' })
-vim.keymap.set('n', 'gQ', '<cmd>FormatLine<cr>', { desc = 'Format current line' })
-vim.keymap.set('x', '<leader>f', '<esc><cmd>FormatSelection<cr>', { desc = 'Format selection' })
+	local cur, chosen = node, nil
+	while cur do
+		local t = cur:type()
+		if in_list(t, target) then
+			chosen = cur
+			break
+		end
+		cur = cur:parent()
+	end
+	if not chosen then
+		return nil
+	end
+
+	local sr0, _, er0, _ = chosen:range()
+	local sr1, er1 = sr0 + 1, er0 + 1
+	pcall(
+		vim.notify,
+		("Formateando bloque: %s  L%d‚ÄìL%d"):format(chosen:type(), sr1, er1),
+		vim.log.levels.INFO,
+		{ title = "Format (TS)" }
+	)
+	return _mk_range_linewise(bufnr, sr1, er1)
+end
+
+-- -------- Comandos --------
+pcall(vim.api.nvim_del_user_command, "Format")
+vim.api.nvim_create_user_command("Format", function()
+	_format_full(vim.api.nvim_get_current_buf())
+end, { desc = "Formatear buffer completo (Conform‚ÜíLSP)" })
+
+pcall(vim.api.nvim_del_user_command, "FormatSelection")
+vim.api.nvim_create_user_command("FormatSelection", function(args)
+	local bufnr = vim.api.nvim_get_current_buf()
+	if args.range == 0 then
+		vim.notify("√ösalo en Visual o con :'<,'>FormatSelection", vim.log.levels.INFO)
+		return
+	end
+	local s_row1, e_row1 = args.line1, args.line2
+
+	-- 1) Bloque con Treesitter si es posible
+	local ts_range = _ts_block_range_or_nil(bufnr, s_row1, e_row1)
+	local final_range = ts_range or _mk_range_linewise(bufnr, s_row1, e_row1)
+
+	-- 2) Reindenta primero el rango (clave para indentaci√≥n correcta)
+	_reindent_lines(bufnr, final_range.start[1], final_range["end"][1])
+
+	-- 3) Formatea rango (Conform ‚Üí LSP)
+	_format_range(bufnr, final_range)
+end, { desc = "Formatear selecci√≥n (bloque TS o l√≠neas)", range = true })
+
+-- -------- Keymap Visual --------
+-- Usa el rango real :'<,'> para garantizar selecci√≥n v√°lida.
+vim.keymap.set(
+	"x",
+	"<leader>f",
+	[[:<C-U>'<,'>FormatSelection<CR>]],
+	{ desc = "Formatear selecci√≥n (bloque TS + reindent)" }
+)
