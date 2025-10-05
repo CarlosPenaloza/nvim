@@ -1,7 +1,7 @@
 return {
   -- ── Temas ───────────────────────────────
-  { "catppuccin/nvim",             name = "catppuccin", priority = 1000, lazy = true },
-  { "morhetz/gruvbox",             priority = 1000,     lazy = true },
+  { "catppuccin/nvim",             name = "catppuccin", priority = 0, lazy = true },
+  { "morhetz/gruvbox",             priority = 1000,     lazy = false },
 
   -- ── Iconos ──────────────────────────────
   { "nvim-tree/nvim-web-devicons", lazy = true },
@@ -39,11 +39,11 @@ return {
     event = { "BufReadPre", "BufNewFile" },
     build = ":TSUpdate",
   },
-
   {
     "HiPhish/rainbow-delimiters.nvim",
     version = "*", -- 👈 mejor usar la última release estable
     event = "VeryLazy",
+    dependencies = { "nvim-treesitter/nvim-treesitter" },
   },
 
   -- ── Barras ──────────────────────────────
@@ -81,6 +81,7 @@ return {
     branch = "main",
     dependencies = { "nvim-tree/nvim-web-devicons" },
     event = "VeryLazy",
+    cmd = { "Trouble", "TroubleToggle", "TroubleRefresh" }, -- lazy por comando
   },
 
   -- 3) todo-comments
@@ -95,11 +96,18 @@ return {
 
   -- LSP
   { "neovim/nvim-lspconfig" },
-  { "williamboman/mason.nvim",                  config = true },
-  { "williamboman/mason-lspconfig.nvim" },
+  {
+    "williamboman/mason.nvim",
+    config = true,
+    event = "VeryLazy"
+  },
+  {
+    "williamboman/mason-lspconfig.nvim",
+    event = "VeryLazy"
+  },
 
   -- TypeScript + plugins extra (incluido lit-html global)
-  { "pmizio/typescript-tools.nvim",             dependencies = { "nvim-lua/plenary.nvim" } },
+  { "pmizio/typescript-tools.nvim", dependencies = { "nvim-lua/plenary.nvim" } },
 
   -- Autocompletado
   { "hrsh7th/nvim-cmp" },
@@ -117,5 +125,8 @@ return {
   { "stevearc/conform.nvim" },
 
   -- Plugins LSP
-  { "WhoIsSethDaniel/mason-tool-installer.nvim" },
+  {
+    "WhoIsSethDaniel/mason-tool-installer.nvim",
+    event = "VeryLazy"
+  },
 }
