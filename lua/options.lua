@@ -50,6 +50,7 @@ vim.opt.splitbelow = true
 vim.opt.splitright = true
 vim.opt.splitkeep = "screen"
 vim.opt.equalalways = false
+vim.o.hidden = true
 
 -- ===== Codificación =====
 -- UTF-8 ya es default, lo dejamos limpio

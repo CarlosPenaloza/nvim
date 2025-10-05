@@ -19,6 +19,12 @@ vim.keymap.set("n", "<Leader>q", ":bdelete<CR>", { silent = true, desc = "Cerrar
 vim.keymap.set("n", "<Leader>vs", ":vsp<CR>", { silent = true, desc = "Vertical split" })
 vim.keymap.set("n", "<Leader>sp", ":sp<CR>", { silent = true, desc = "Horizontal split" })
 
+-- Crear splits rápido
+vim.keymap.set("n", "<leader>spv", "<cmd>vsplit<cr>", { desc = "Split vertical" })
+vim.keymap.set("n", "<leader>sph", "<cmd>split<cr>",  { desc = "Split horizontal" })
+vim.keymap.set("n", "<leader>spq", "<cmd>close<cr>", { desc = "Cerrar split actual" })
+vim.keymap.set("n", "<leader>spo", "<cmd>only<cr>",  { desc = "Cerrar otros splits" })
+
 -- === Limpiar resaltados ===
 vim.keymap.set("n", "<Esc>", ":noh<CR>", { silent = true, desc = "Quitar búsqueda resaltada" })
 
