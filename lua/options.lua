@@ -80,9 +80,12 @@ vim.opt.pumheight = 12
 vim.opt.completeopt = { "menuone", "noselect" }
 
 -- ===== Plegado (Treesitter) =====
-vim.opt.foldmethod = "expr"
-vim.opt.foldexpr = "v:lua.vim.treesitter.foldexpr()"
-vim.opt.foldenable = false
+vim.o.foldmethod = "expr"
+vim.o.foldexpr = "nvim_treesitter#foldexpr()"
+vim.o.foldlevel = 99
+vim.o.foldlevelstart = 99
+vim.o.foldenable = true
+vim.o.foldcolumn = "1"
 
 -- ===== Coincidencias =====
 vim.opt.showmatch = true
