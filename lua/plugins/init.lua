@@ -129,4 +129,22 @@ return {
     "WhoIsSethDaniel/mason-tool-installer.nvim",
     event = "VeryLazy"
   },
+
+  -- Conversion Mayusculas, Snake Case, Kebbab Case
+  {
+    "gregorias/coop.nvim",
+  },
+  {
+    "gregorias/coerce.nvim",
+    tag = 'v4.1.0',
+    config = true,
+  },
+
+  -- Fold
+  {
+    "kevinhwang91/nvim-ufo",
+    dependencies = {
+      "kevinhwang91/promise-async"
+    }
+  }
 }

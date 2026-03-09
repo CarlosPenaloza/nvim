@@ -11,7 +11,6 @@ vim.opt.sidescrolloff = 8 -- margen horizontal
 
 -- Columnas laterales estables
 vim.opt.signcolumn = "yes:2" -- siempre hasta 2 signos, sin saltos
-vim.opt.foldcolumn = "1" -- columna fija de folds
 vim.opt.numberwidth = 4 -- ancho fijo para números
 
 -- Statusline / cmdline
@@ -81,12 +80,14 @@ vim.opt.pumheight = 12
 vim.opt.completeopt = { "menuone", "noselect" }
 
 -- ===== Plegado (Treesitter) =====
-vim.o.foldmethod = "expr"
-vim.o.foldexpr = "nvim_treesitter#foldexpr()"
+vim.o.foldcolumn = "1" -- columna fija de folds
+vim.o.foldmethod = "manual"
 vim.o.foldlevel = 99
 vim.o.foldlevelstart = 99
 vim.o.foldenable = true
 vim.o.foldcolumn = "1"
+vim.o.fillchars = "fold: ,foldopen:,foldclose:"
+
 
 -- ===== Coincidencias =====
 vim.opt.showmatch = true

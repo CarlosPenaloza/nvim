@@ -20,6 +20,7 @@ vim.api.nvim_create_autocmd("User", {
 	pattern = "VeryLazy",
 	callback = function()
 		-- UI / Utilidades
+		pcall(require, "config.treesitter")
 		pcall(require, "config.telescope")
 		pcall(require, "config.catppuccin")
 		pcall(require, "config.devicons") -- si lo usas
@@ -27,7 +28,6 @@ vim.api.nvim_create_autocmd("User", {
 		pcall(require, "config.mini")
 		pcall(require, "config.lualine")
 		pcall(require, "config.gitsigns")
-		pcall(require, "config.treesitter")
 		pcall(require, "config.other-pluggins-config")
 		pcall(require, "config.largefile")
 
@@ -54,6 +54,7 @@ vim.api.nvim_create_autocmd("User", {
 
 		--
 		pcall(require, "config.todo-comments")
+		pcall(require, "config.ufo")
 	end,
 })
 
