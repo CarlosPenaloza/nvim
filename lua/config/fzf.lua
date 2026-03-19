@@ -84,3 +84,12 @@ end, { desc = "Git commits" })
 vim.keymap.set("n", "<leader>gb", function()
   fzf.git_branches(smart_opts())
 end, { desc = "Git branches" })
+
+-- 🔗 función para buscar en un directorio específico
+function _G.FzfFilesFromDir(dir)
+  if not dir then return end
+  require("fzf-lua").files(vim.tbl_deep_extend("force",
+    smart_opts(),
+    { cwd = dir }
+  ))
+end
