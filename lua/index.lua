@@ -21,7 +21,7 @@ vim.api.nvim_create_autocmd("User", {
 	callback = function()
 		-- UI / Utilidades
 		pcall(require, "config.treesitter")
-		pcall(require, "config.telescope")
+		-- pcall(require, "config.telescope")
 		pcall(require, "config.catppuccin")
 		pcall(require, "config.devicons") -- si lo usas
 		pcall(require, "config.bufferline")
@@ -55,6 +55,7 @@ vim.api.nvim_create_autocmd("User", {
 		--
 		pcall(require, "config.todo-comments")
 		pcall(require, "config.ufo")
+		pcall(require, "config.fzf")
 	end,
 })
 

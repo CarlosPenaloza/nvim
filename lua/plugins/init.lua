@@ -51,20 +51,20 @@ return {
   { "nvim-lualine/lualine.nvim", event = "VeryLazy" },
 
   -- ── Telescope ───────────────────────────
-  {
-    "nvim-telescope/telescope.nvim",
-    branch = "0.1.x",
-    cmd = "Telescope",
-    dependencies = { "nvim-lua/plenary.nvim" },
-  },
-  {
-    "nvim-telescope/telescope-fzf-native.nvim",
-    build = "make",
-    cond = function()
-      return vim
-          .fn.executable("make") == 1
-    end
-  },
+  -- {
+  --   "nvim-telescope/telescope.nvim",
+  --   branch = "0.1.x",
+  --   cmd = "Telescope",
+  --   dependencies = { "nvim-lua/plenary.nvim" },
+  -- },
+  -- {
+  --   "nvim-telescope/telescope-fzf-native.nvim",
+  --   build = "make",
+  --   cond = function()
+  --     return vim
+  --         .fn.executable("make") == 1
+  --   end
+  -- },
 
   -- ── Utilidad ───────────────────────────
   {
@@ -146,5 +146,11 @@ return {
     dependencies = {
       "kevinhwang91/promise-async"
     }
+  },
+
+  -- Fzf
+  {
+    "ibhagwan/fzf-lua",
+    dependencies = { "nvim-tree/nvim-web-devicons" }
   }
 }
