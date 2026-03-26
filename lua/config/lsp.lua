@@ -97,6 +97,24 @@ vim.lsp.config("cssls", {})
 vim.lsp.config("html", {})
 vim.lsp.config("bashls", {})
 vim.lsp.config("pyright", {})
+vim.lsp.config("custom_elements_ls", {
+  filetypes = {
+    "html",
+    "javascript",
+    "typescript",
+    "javascriptreact",
+    "typescriptreact",
+  },
+})
+vim.lsp.config("emmet_ls", {
+  filetypes = {
+    "html",
+    "javascript",
+    "typescript",
+    "javascriptreact",
+    "typescriptreact",
+  },
+})
 
 -- 6) Activación automática
-vim.lsp.enable({ "lua_ls", "jsonls", "cssls", "html", "bashls", "pyright" })
+vim.lsp.enable({ "lua_ls", "jsonls", "cssls", "html", "bashls", "pyright", "custom_elements_ls" })

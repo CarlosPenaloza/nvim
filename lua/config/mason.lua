@@ -15,7 +15,9 @@ require("mason-lspconfig").setup({
 		"lua_ls",
 		"jsonls",
 		"cssls",
+		"custom_elements_ls",
 		"html",
+		"emmet_ls",
 		"bashls",
 		"pyright",
 		"vtsls", -- TypeScript: vtsls (preferido)

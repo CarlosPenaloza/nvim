@@ -88,7 +88,6 @@ vim.o.foldenable = true
 vim.o.foldcolumn = "1"
 vim.o.fillchars = "fold: ,foldopen:,foldclose:"
 
-
 -- ===== Coincidencias =====
 vim.opt.showmatch = true
 
@@ -114,3 +113,6 @@ vim.opt.diffopt:append({ "linematch:60", "algorithm:patience" })
 -- Popups semitransparentes (si el tema soporta)
 vim.opt.winblend = 10
 vim.opt.pumblend = 10
+
+vim.opt.title = true
+vim.opt.titlestring = "%F"
