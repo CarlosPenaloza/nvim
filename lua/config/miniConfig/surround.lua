@@ -1,12 +1,17 @@
-require('mini.surround').setup({
+require("mini.surround").setup({
   mappings = {
-    -- add            = '<leader>sa', -- A–adir envoltura
-    delete         = '<leader>sd', -- Quitar envoltura
-    find           = '<leader>sf', -- Buscar a la derecha
-    find_left      = '<leader>sF', -- Buscar a la izquierda
-    highlight      = '<leader>sh', -- Resaltar envoltura
-    replace        = '<leader>sr', -- Reemplazar envoltura
-    update_n_lines = '<leader>sn', -- Actualizar n l’neas para "add"
-  },
-})
+    add = "ys",            -- agregar surround
+    delete = "ds",         -- borrar
+    replace = "cs",        -- cambiar
 
+    find = "sf",           -- buscar siguiente
+    find_left = "sF",      -- buscar anterior
+    highlight = "sh",      -- resaltar
+    update_n_lines = "sn", -- actualizar lÃ­neas
+
+    suffix_last = "l",
+    suffix_next = "n",
+  },
+
+  n_lines = 50, -- ðŸ”¥ clave: mejora rendimiento
+})

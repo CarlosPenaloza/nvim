@@ -84,16 +84,6 @@ return {
     cmd = { "Trouble", "TroubleToggle", "TroubleRefresh" }, -- lazy por comando
   },
 
-  -- 3) todo-comments
-  {
-    "folke/todo-comments.nvim",
-    event = "VeryLazy",
-    dependencies = { "nvim-lua/plenary.nvim" },
-    config = function()
-      require("config.todo-comments") -- 👈 todo aquí (opts + keymaps)
-    end,
-  },
-
   -- LSP
   { "neovim/nvim-lspconfig" },
   {
@@ -131,9 +121,6 @@ return {
   },
 
   -- Conversion Mayusculas, Snake Case, Kebbab Case
-  {
-    "gregorias/coop.nvim",
-  },
   {
     "gregorias/coerce.nvim",
     tag = 'v4.1.0',

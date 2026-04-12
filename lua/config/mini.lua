@@ -59,16 +59,5 @@ vim.api.nvim_create_autocmd("FileType", {
 -- 9) Hipatterns (reemplaza nvim-highlight-colors)
 require("config.miniConfig.hipatterns")
 
--- 10) mini.ai — Textobjects inteligentes
--- do
---   local ai = require('mini.ai')
---   ai.setup({
---     n_lines = 500,
---     custom_textobjects = {
---       f = ai.gen_spec.treesitter({ a = '@function.outer', i = '@function.inner' }),
---       c = ai.gen_spec.treesitter({ a = '@class.outer', i = '@class.inner' }),
---       o = ai.gen_spec.treesitter({ a = '@loop.outer', i = '@loop.inner' }),
---       p = ai.gen_spec.treesitter({ a = '@parameter.outer', i = '@parameter.inner' }),
---     },
---   })
--- end
+-- ai 
+require("config.miniConfig.ai")
