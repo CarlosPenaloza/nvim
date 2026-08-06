@@ -32,7 +32,7 @@ gitsigns.setup({
   max_file_length              = 30000,
 
   -- Blame de línea
-  current_line_blame           = false,
+  current_line_blame           = true,
   current_line_blame_opts      = {
     virt_text = true,
     virt_text_pos = 'eol',

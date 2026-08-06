@@ -59,7 +59,10 @@ vim.api.nvim_create_autocmd("FileType", {
   callback = function()
     vim.keymap.set("n", "<leader>ff", function()
       local dir = require("oil").get_current_dir()
-      _G.FzfFilesFromDir(dir)
-    end, { buffer = true, desc = "FZF en este directorio" })
+      require("config.fzf").files_from_dir(dir)
+    end, {
+      buffer = true,
+      desc = "Find files in current directory",
+    })
   end,
 })
