@@ -47,6 +47,7 @@ vim.api.nvim_create_autocmd("User", {
     pcall(require, "config.format")
 
     -- Diagnosticos (trouble.nvim)
+    pcall(require, "config.copilot")
     pcall(require, "config.diagnostics")
 
     --
