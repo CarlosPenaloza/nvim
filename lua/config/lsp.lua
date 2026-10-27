@@ -54,13 +54,23 @@ vim.api.nvim_create_autocmd("LspAttach", {
 	group = aug,
 	callback = function(args)
 		local buf = args.buf
+		if vim.b[buf].large_file then
+			vim.schedule(function()
+				if vim.api.nvim_buf_is_valid(buf) and vim.b[buf].large_file then
+					vim.lsp.buf_detach_client(buf, args.data.client_id)
+				end
+			end)
+			return
+		end
+		local client = vim.lsp.get_client_by_id(args.data.client_id)
+		if client and client:supports_method("textDocument/inlayHint", buf) then
+			enable_inlay_hints(buf, true)
+		end
 		-- evita repetir en buffers con múltiples clientes
 		if vim.b[buf].lsp_keymaps_set then
 			return
 		end
 		vim.b[buf].lsp_keymaps_set = true
-
-		enable_inlay_hints(buf, true)
 
 		local map = function(mode, lhs, rhs, desc)
 			vim.keymap.set(mode, lhs, rhs, { buffer = buf, desc = desc })
@@ -76,6 +86,9 @@ vim.api.nvim_create_autocmd("LspAttach", {
 		map("n", "]d", vim.diagnostic.goto_next, "LSP: Next diagnostic")
 		map("n", "<leader>rn", vim.lsp.buf.rename, "LSP: Rename symbol")
 		map({ "n", "x" }, "<leader>ca", vim.lsp.buf.code_action, "LSP: Code action")
+		map("n", "<leader>ih", function()
+			vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled({ bufnr = buf }), { bufnr = buf })
+		end, "LSP: Toggle inlay hints")
 
 		-- Importante: NO mapear aquí <leader>f (lo gestiona tu format.lua)
 	end,
@@ -97,6 +110,23 @@ vim.lsp.config("cssls", {})
 vim.lsp.config("html", {})
 vim.lsp.config("bashls", {})
 vim.lsp.config("pyright", {})
+local eslint_root_dir = vim.lsp.config.eslint.root_dir
+vim.lsp.config("eslint", {
+	root_dir = function(bufnr, on_dir)
+		eslint_root_dir(bufnr, function(root)
+			local local_server = root .. "/node_modules/.bin/vscode-eslint-language-server"
+			if vim.fn.executable(local_server) == 1 or vim.fn.executable("vscode-eslint-language-server") == 1 then
+				on_dir(root)
+			else
+				vim.notify_once("ESLint: falta el servidor. Ejecuta :MasonInstall eslint-lsp y reinicia Neovim.", vim.log.levels.WARN)
+			end
+		end)
+	end,
+	settings = {
+		workingDirectory = { mode = "auto" },
+		format = false,
+	},
+})
 vim.lsp.config("custom_elements_ls", {
   filetypes = {
     "html",
@@ -117,4 +147,4 @@ vim.lsp.config("emmet_ls", {
 })
 
 -- 6) Activación automática
-vim.lsp.enable({ "lua_ls", "jsonls", "cssls", "html", "bashls", "pyright", "custom_elements_ls" })
+vim.lsp.enable({ "lua_ls", "jsonls", "cssls", "html", "bashls", "pyright", "custom_elements_ls", "emmet_ls", "eslint" })

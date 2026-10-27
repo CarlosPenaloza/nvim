@@ -3,7 +3,17 @@ local cmp = require("cmp")
 local lspkind = require("lspkind")
 local luasnip = require("luasnip")
 
+luasnip.config.setup({
+  ft_func = require("config.snippet_context").filetypes,
+  load_ft_func = require("luasnip.extras.filetype_functions").extend_load_ft({
+    javascript = { "html" },
+    typescript = { "html" },
+    javascriptreact = { "html" },
+    typescriptreact = { "html" },
+  }),
+})
 require("luasnip.loaders.from_vscode").lazy_load()
+require("config.snippets")
 
 cmp.setup({
   snippet = {

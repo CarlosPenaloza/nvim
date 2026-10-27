@@ -1,7 +1,23 @@
 return {
 	-- ── Temas ───────────────────────────────
-	{ "catppuccin/nvim", name = "catppuccin", priority = 0, lazy = true },
-	{ "morhetz/gruvbox", priority = 1000, lazy = false },
+	{
+		"catppuccin/nvim",
+		name = "catppuccin",
+		lazy = true,
+		config = function()
+			require("config.catppuccin")
+		end,
+	},
+	{
+		"ellisonleao/gruvbox.nvim",
+		priority = 1000,
+		lazy = false,
+		opts = {
+			terminal_colors = false,
+			contrast = "",
+			italic = { strings = false, comments = true, operators = false, folds = false, emphasis = true },
+		},
+	},
 
 	-- ── Iconos ──────────────────────────────
 	{ "nvim-tree/nvim-web-devicons", lazy = true },
@@ -96,9 +112,6 @@ return {
 		event = "VeryLazy",
 	},
 
-	-- TypeScript + plugins extra (incluido lit-html global)
-	{ "pmizio/typescript-tools.nvim", dependencies = { "nvim-lua/plenary.nvim" } },
-
 	-- Autocompletado
 	{ "hrsh7th/nvim-cmp" },
 	{ "hrsh7th/cmp-nvim-lsp" },
@@ -141,8 +154,39 @@ return {
 		dependencies = { "nvim-tree/nvim-web-devicons" },
 	},
 
-	-- Copilot
+	{
+		"nvim-neotest/neotest",
+		dependencies = {
+			"nvim-neotest/nvim-nio",
+			"nvim-lua/plenary.nvim",
+			"nvim-treesitter/nvim-treesitter",
+			"marilari88/neotest-vitest",
+		},
+		keys = {
+			{ "<leader>Tn", function() require("neotest").run.run() end, desc = "Test: nearest" },
+			{ "<leader>Tf", function() require("neotest").run.run(vim.api.nvim_buf_get_name(0)) end, desc = "Test: file" },
+			{ "<leader>Ta", function() require("neotest").run.run(vim.fn.getcwd()) end, desc = "Test: directory" },
+			{ "<leader>Ts", function() require("neotest").summary.toggle() end, desc = "Test: summary" },
+			{ "<leader>To", function() require("neotest").output.open({ enter = true }) end, desc = "Test: output" },
+			{ "<leader>Tx", function() require("neotest").run.stop() end, desc = "Test: stop" },
+		},
+		config = function()
+			require("neotest").setup({
+				adapters = {
+					require("neotest-vitest")({
+						filter_dir = function(name)
+							return not vim.tbl_contains({ "node_modules", ".git", "dist", "coverage" }, name)
+						end,
+					}),
+				},
+			})
+		end,
+	},
+
 	{
 		"github/copilot.vim",
+		init = function()
+			require("config.copilot")
+		end,
 	},
 }

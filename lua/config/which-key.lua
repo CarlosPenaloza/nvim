@@ -13,4 +13,5 @@ wk.setup({
 wk.add({
   { "<leader>x", group = "Trouble / Diagnósticos" },
   { "<leader>t", group = "TODOs" },
+  { "<leader>T", group = "Tests" },
 })

@@ -1,5 +1,19 @@
 local fzf = require("fzf-lua")
 local actions = require("fzf-lua.actions")
+local rg_options = "--column --line-number --no-heading --color=always --smart-case --max-columns=4096"
+local project_rg_options = rg_options .. " --max-filesize=1M"
+for _, directory in ipairs({ ".git", "node_modules", "dist", "build", "coverage", ".next", ".nuxt", ".turbo" }) do
+  project_rg_options = project_rg_options .. " --glob '!**/" .. directory .. "/**'"
+end
+
+local function project_root()
+  local filename = vim.api.nvim_buf_get_name(0)
+  if filename:match("^oil://") then
+    local ok, oil = pcall(require, "oil")
+    filename = ok and oil.get_current_dir() or ""
+  end
+  return vim.fs.root(filename ~= "" and filename or vim.fn.getcwd(), { "package.json", ".git" }) or vim.fn.getcwd()
+end
 
 --------------------------------------------------
 -- Setup
@@ -73,22 +87,18 @@ end
 --------------------------------------------------
 
 function M.live_grep(opts)
-  fzf.live_grep(opts or {})
+  fzf.live_grep(vim.tbl_extend("force", {
+    cwd = project_root(),
+    rg_opts = project_rg_options,
+    exec_empty_query = false,
+  }, opts or {}))
 end
 
 function M.live_grep_all()
   fzf.live_grep({
-    rg_opts = table.concat({
-      "--column",
-      "--line-number",
-      "--no-heading",
-      "--color=always",
-      "--smart-case",
-      "--hidden",
-      "--follow",
-      "--no-ignore",
-      "--no-ignore-vcs",
-    }, " "),
+    cwd = project_root(),
+    exec_empty_query = false,
+    rg_opts = rg_options .. " --hidden --no-ignore --glob '!.git'",
   })
 end
 

@@ -46,16 +46,22 @@ vim.g.maplocalleader = " "
 | `n`  | `<Left>`        | Reducir ancho              | `nvim/lua/mapped.lua`                       |
 | `n`  | `<Right>`       | Aumentar ancho             | `nvim/lua/mapped.lua`                       |
 | `n`  | `<Up>`          | Aumentar alto              | `nvim/lua/mapped.lua`                       |
-| `n`  | `<leader>f`     | Formatear **línea actual** | `nvim/lua/config/format.lua`                |
+| `n`  | `<leader>F`     | Formatear **archivo completo** | `nvim/lua/config/format.lua`             |
 | `x`  | `<leader>f`     | Formatear **selección**    | `nvim/lua/config/format.lua`                |
 
 ---
 
 ## Comandos útiles añadidos
 
-- `:Format` → formatea **todo el buffer** (usa `prettierd`).
-- `:FormatLine` → formatea **la línea actual** (fuerza Prettier CLI).
-- `:FormatSel` → formatea **selección visual** o rango `:[linea1],[linea2]FormatSel`.
-- `:FormatPrettier` → fuerza **Prettier CLI** en todo el buffer.
-- `:PrettierdStop` → detener el daemon de `prettierd`.
-- `:PrettierdRestart` → reiniciar `prettierd`.
+- `:Format`: formatea el buffer mediante Conform (Prettier para web).
+- `:'<,'>FormatSelection`: formatea solo las lineas del rango, sin ampliar al bloque.
+- `<localleader>lp` / `<localleader>lm`: propiedad o metodo Lit con JSDoc (normal/insercion).
+- `<leader>fg` / `<leader>fG`: grep del proyecto o grep incluyendo ignorados/ocultos.
+- `:LspOrganizeImports`: organiza imports con el servidor TypeScript.
+- `:LspEslintFixAll`: aplica correcciones de ESLint al buffer.
+- `<leader>ih`: alterna las pistas de tipos del LSP.
+- `<leader>Tn` / `<leader>Tf` / `<leader>Ta`: prueba cercana, archivo o directorio con Vitest.
+- `<leader>Ts` / `<leader>To` / `<leader>Tx`: resumen, salida o detener prueba.
+- `<leader>Tw` / `<leader>TW`: archivo o proyecto con Web Test Runner.
+- `:WebTest!` / `:WebTestAll!`: ejecuta Web Test Runner en modo watch.
+- `:LargeFileOn` / `:LargeFileOff`: desactiva/restaura funciones costosas solo para el buffer actual.

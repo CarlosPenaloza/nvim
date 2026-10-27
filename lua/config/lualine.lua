@@ -2,7 +2,7 @@
 
 require("lualine").setup({
   options = {
-    theme = "gruvbox",
+    theme = "auto",
     globalstatus = true,
 
     -- Powerline look

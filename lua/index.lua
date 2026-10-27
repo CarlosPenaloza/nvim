@@ -1,10 +1,25 @@
--- lua/index.lua
+local function load_config(name)
+  local ok, err = pcall(require, name)
+  if not ok then
+    vim.schedule(function()
+      vim.notify(name .. ": " .. tostring(err), vim.log.levels.ERROR, { title = "Neovim config" })
+    end)
+  end
+end
 
--- ===== Settings base =====
-pcall(require, "options")
-pcall(require, "config.globals")
+load_config("options")
+load_config("config.largefile")
+load_config("config.mason")
+load_config("config.lsp")
+load_config("config.lsp_ts")
+load_config("config.cmp")
+load_config("config.conform")
+load_config("config.format")
+load_config("config.treesitter")
+load_config("config.complexity")
+load_config("config.web_tests")
+load_config("config.highlights")
 
--- ===== Tema por defecto (opcional) =====
 vim.cmd.colorscheme("gruvbox")
 vim.api.nvim_create_user_command("ThemeToggle", function()
   local c = vim.g.colors_name
@@ -20,44 +35,18 @@ vim.api.nvim_create_autocmd("User", {
   pattern = "VeryLazy",
   callback = function()
     -- UI / Utilidades
-    pcall(require, "config.treesitter")
-    -- pcall(require, "config.telescope")
-    pcall(require, "config.catppuccin")
-    pcall(require, "config.devicons") -- si lo usas
-    pcall(require, "config.bufferline")
-    pcall(require, "config.mini")
-    pcall(require, "config.lualine")
-    pcall(require, "config.gitsigns")
-    pcall(require, "config.other-pluggins-config")
-    pcall(require, "config.largefile")
-
-    -- ===== LSP / Completion / Format =====
-    -- Servidores base (html, cssls, jsonls, eslint, lua_ls, bashls, pyright, marksman, emmet_ls, etc.)
-    pcall(require, "config.mason")
-    pcall(require, "config.lsp")
-
-    -- TypeScript/Lit global (elige tu implementación: typescript-tools o lspconfig puro)
-    pcall(require, "config.lsp_ts")
-
-    -- Autocompletado (nvim-cmp + luasnip + lspkind)
-    pcall(require, "config.cmp")
-
-    -- Formateo (conform.nvim)
-    pcall(require, "config.conform")
-    pcall(require, "config.format")
-
-    -- Diagnosticos (trouble.nvim)
-    pcall(require, "config.copilot")
-    pcall(require, "config.diagnostics")
-
-    --
-    pcall(require, "config.which-key")
-
-    --
-    pcall(require, "config.ufo")
-    pcall(require, "config.fzf")
+    load_config("config.devicons")
+    load_config("config.bufferline")
+    load_config("config.mini")
+    load_config("config.lualine")
+    load_config("config.gitsigns")
+    load_config("config.other-pluggins-config")
+    load_config("config.diagnostics")
+    load_config("config.which-key")
+    load_config("config.ufo")
+    load_config("config.fzf")
   end,
 })
 
 -- ===== Mapeos globales (no dependen de plugins) =====
-pcall(require, "mapped")
+load_config("mapped")

@@ -17,6 +17,9 @@ _G.BigFile = _G.BigFile or {}
 BigFile.state = BigFile.state or {}
 
 local function is_large(buf)
+	if vim.b[buf].large_file then
+		return true
+	end
 	if large_cache[buf] ~= nil then
 		return large_cache[buf]
 	end

@@ -18,12 +18,12 @@ require("mason-lspconfig").setup({
 		"custom_elements_ls",
 		"html",
 		"emmet_ls",
+		"eslint",
 		"bashls",
 		"pyright",
-		"vtsls", -- TypeScript: vtsls (preferido)
-		"ts_ls", -- fallback tsserver (typescript-language-server)
+		"vtsls",
 	},
-	automatic_installation = true,
+	automatic_enable = false,
 })
 
 -- Herramientas CLI (formateadores/linters) via mason-tool-installer
