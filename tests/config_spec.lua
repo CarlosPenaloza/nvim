@@ -82,8 +82,17 @@ local lsp_config = setmetatable({
 		eslint_configs[name] = config
 	end,
 })
+local handler_configs = {}
+local lsp_handlers = {
+	hover = function(_, _, _, config)
+		return config
+	end,
+	signature_help = function(_, _, _, config)
+		return config
+	end,
+}
 local eslint_vim = setmetatable({
-	lsp = setmetatable({ config = lsp_config, enable = function() end }, { __index = vim.lsp }),
+	lsp = setmetatable({ config = lsp_config, enable = function() end, handlers = lsp_handlers }, { __index = vim.lsp }),
 	fn = setmetatable({
 		executable = function()
 			return server_available and 1 or 0
@@ -94,6 +103,10 @@ local eslint_vim = setmetatable({
 	end,
 }, { __index = vim })
 load_config("lua/config/lsp.lua", { vim = eslint_vim })
+handler_configs.hover = lsp_handlers["textDocument/hover"](nil, nil, nil, { max_width = 80 })
+handler_configs.signature_help = lsp_handlers["textDocument/signatureHelp"](nil, nil, nil, { max_height = 12 })
+assert(handler_configs.hover.border == "rounded" and handler_configs.hover.max_width == 80)
+assert(handler_configs.signature_help.border == "rounded" and handler_configs.signature_help.max_height == 12)
 local eslint_root
 eslint_configs.eslint.root_dir(0, function(path)
 	eslint_root = path

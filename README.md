@@ -2,7 +2,7 @@
 
 ## Desarrollo Web: Lit y React
 
-Requisitos: Neovim >= 0.11.3, Git y una version LTS de Node.js compatible
+Requisitos: Neovim >= 0.12, Git y una version LTS de Node.js compatible
 con tu proyecto. Lazy instala los plugins y Mason instala los servidores y
 formateadores; no instala las dependencias npm de tus aplicaciones.
 

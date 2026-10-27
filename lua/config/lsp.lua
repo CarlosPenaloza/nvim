@@ -1,7 +1,7 @@
 -- =============================
 --  lua/config/lsp.lua (V3)
 -- =============================
--- Requiere Neovim >= 0.11 y nvim-lspconfig reciente.
+-- Requiere Neovim >= 0.12 y nvim-lspconfig reciente.
 
 local ok_cmp, cmp_lsp = pcall(require, "cmp_nvim_lsp")
 
@@ -17,7 +17,10 @@ vim.diagnostic.config({
 
 -- Handlers con borde
 local with_border = function(handler)
-	return vim.lsp.with(handler, { border = "rounded" })
+	return function(err, result, ctx, config)
+		config = vim.tbl_extend("force", config or {}, { border = "rounded" })
+		return handler(err, result, ctx, config)
+	end
 end
 vim.lsp.handlers["textDocument/hover"] = with_border(vim.lsp.handlers.hover)
 vim.lsp.handlers["textDocument/signatureHelp"] = with_border(vim.lsp.handlers.signature_help)
@@ -36,7 +39,7 @@ vim.lsp.config("*", {
 	capabilities = default_caps,
 })
 
--- Wrapper inlay hints compatible 0.10/0.11
+-- Keep inlay hints optional for buffers where the API is unavailable.
 local function enable_inlay_hints(buf, enable)
 	local ok = pcall(function()
 		if vim.lsp.inlay_hint and vim.lsp.inlay_hint.enable then
