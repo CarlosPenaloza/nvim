@@ -1,14 +1,33 @@
 -- lua/config/treesitter.lua
-local ok, ts_configs = pcall(require, "nvim-treesitter.configs")
-if not ok then
-	return
-end
+local treesitter = require("nvim-treesitter")
 
 local uv = vim.uv or vim.loop
 
 -- ===== Rendimiento / límites =====
 local BIG_FILE_SIZE = 500 * 1024 -- 500 KB
 local BIG_FILE_LINES = 10000
+local parsers = {
+	"bash",
+	"comment",
+	"css",
+	"dockerfile",
+	"gitignore",
+	"html",
+	"http",
+	"javascript",
+	"json",
+	"lua",
+	"markdown",
+	"markdown_inline",
+	"python",
+	"regex",
+	"scss",
+	"tsx",
+	"typescript",
+	"vim",
+	"vimdoc",
+}
+local no_indent = { python = true, css = true, scss = true }
 
 -- Cachés / estados
 local notified = {} -- evita spamear notificaciones por buffer
@@ -43,114 +62,46 @@ local function mark_big_and_maybe_notify(buf, feature, msg)
 	end)
 end
 
--- ===== Rainbow (opcional, sólo si está instalado) =====
-local has_rd, rd = pcall(require, "rainbow-delimiters")
-local rainbow_conf
-if has_rd then
-	rainbow_conf = {
-		enable = true,
-		query = "rainbow-parens", -- compatible con la mayoría de sets
-		strategy = rd.strategy["local"], -- ligero por buffer visible
-		disable = function(_, buf)
-			if is_large(buf) then
-				mark_big_and_maybe_notify(
-					buf,
-					"Rainbow",
-					("Deshabilitado en archivo grande (> %d KB o > %d líneas)"):format(
-						BIG_FILE_SIZE / 1024,
-						BIG_FILE_LINES
-					)
-				)
-				return true
-			end
-			return false
-		end,
-	}
+treesitter.setup({
+	install_dir = vim.fn.stdpath("data") .. "/site",
+})
+
+if vim.fn.executable("tree-sitter") == 1 then
+	treesitter.install(parsers)
 else
-	rainbow_conf = { enable = false }
+	vim.notify_once(
+		"Instala tree-sitter-cli para instalar y actualizar los parsers de Treesitter.",
+		vim.log.levels.WARN,
+		{ title = "Treesitter" }
+	)
 end
 
--- ===== Setup principal =====
-ts_configs.setup({
-	ensure_installed = {
-		"bash",
-		"comment",
-		"css",
-		"dockerfile",
-		"gitignore",
-		"html",
-		"http",
-		"javascript",
-		"json",
-		"lua",
-		"markdown",
-		"markdown_inline",
-		"python",
-		"regex",
-		"scss",
-		"tsx",
-		"typescript",
-		"vim",
-		"vimdoc",
-	},
-	sync_install = false,
-	auto_install = true,
-	ignore_install = {},
-
-	highlight = {
-		enable = true,
-		additional_vim_regex_highlighting = false,
-		disable = function(_, buf)
-			if is_large(buf) then
-				mark_big_and_maybe_notify(
-					buf,
-					"Highlight",
-					("Deshabilitado para archivo grande (> %d KB o > %d líneas)"):format(
-						BIG_FILE_SIZE / 1024,
-						BIG_FILE_LINES
-					)
+vim.api.nvim_create_autocmd("FileType", {
+	callback = function(args)
+		local buf = args.buf
+		if is_large(buf) then
+			mark_big_and_maybe_notify(
+				buf,
+				"Highlight e indentación",
+				("Deshabilitados para archivo grande (> %d KB o > %d líneas)"):format(
+					BIG_FILE_SIZE / 1024,
+					BIG_FILE_LINES
 				)
-				return true
-			end
-			BigFile.state[buf] = false
-			return false
-		end,
-	},
+			)
+			return
+		end
 
-	indent = {
-		enable = true,
-		disable = function(lang, buf)
-			-- Desactiva indent TS en lenguajes problemáticos y en archivos grandes
-			if lang == "python" or lang == "css" or lang == "scss" or is_large(buf) then
-				if is_large(buf) then
-					mark_big_and_maybe_notify(
-						buf,
-						"Indent",
-						("Deshabilitado en archivo grande (> %d KB o > %d líneas)"):format(
-							BIG_FILE_SIZE / 1024,
-							BIG_FILE_LINES
-						)
-					)
-				end
-				return true
-			end
-			return false
-		end,
-	},
+		local ok_parser = pcall(vim.treesitter.get_parser, buf)
+		if not ok_parser then
+			return
+		end
 
-	-- Sólo se aplica si tienes rainbow-delimiters instalado
-	rainbow = rainbow_conf,
-
-	-- Selección incremental (sin requires extra ni keymaps sueltos)
-	incremental_selection = {
-		enable = true,
-		keymaps = {
-			init_selection = "<CR>",
-			node_incremental = "<TAB>",
-			node_decremental = "<S-TAB>",
-			scope_incremental = false,
-		},
-	},
+		BigFile.state[buf] = false
+		pcall(vim.treesitter.start, buf)
+		if not no_indent[vim.bo[buf].filetype] then
+			vim.bo[buf].indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+		end
+	end,
 })
 
 -- Opcional: limpia caché cuando cambie significativamente el buffer

@@ -52,8 +52,11 @@ return {
 	-- ── Treesitter ──────────────────────────
 	{
 		"nvim-treesitter/nvim-treesitter",
-		event = { "BufReadPre", "BufNewFile" },
-		build = ":TSUpdate",
+		branch = "main",
+		lazy = false,
+		config = function()
+			require("config.treesitter")
+		end,
 	},
 	{
 		"HiPhish/rainbow-delimiters.nvim",
